@@ -96,6 +96,9 @@ namespace ExtendedToolbar
 
             if (Host.Game is OsuGame game)
             {
+                if (notificationManager != null && notificationManager.Parent == null)
+                    game.Add(notificationManager);
+
                 screenAdapter?.Attach(game.ScreenStack);
                 notificationManager?.Attach(game);
 

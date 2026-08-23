@@ -239,6 +239,11 @@ namespace ExtendedToolbar.Tweaks
             applyConfig(config);
 
             // Connect delegates & managers
+            if (profileManager.Parent == null)
+            {
+                AddInternal(profileManager);
+            }
+
             if (allBlocks.TryGetValue("user_profile", out var userProfileBlock))
             {
                 profileManager.Attach(userProfileBlock.ContentDrawable);

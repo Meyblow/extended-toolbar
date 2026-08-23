@@ -8,6 +8,7 @@ using osu.Framework.Testing;
 using osu.Game;
 using osu.Game.Overlays;
 using osucc.Plugin;
+using osuTK;
 using ExtendedToolbar.Models;
 using ExtendedToolbar.Utils;
 
@@ -20,6 +21,7 @@ namespace ExtendedToolbar.Tweaks
     {
         private static readonly FieldInfo? mainContentField = typeof(NotificationOverlay).GetField("mainContent", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo? toastTrayField = typeof(NotificationOverlay).GetField("toastTray", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo? toastFlowField = typeof(NotificationOverlay).Assembly.GetType("osu.Game.Overlays.NotificationOverlayToastTray")?.GetField("toastFlow", BindingFlags.NonPublic | BindingFlags.Instance);
 
         private readonly IOsuCcPluginHost host;
         private readonly ExtendedToolbarSettings settings;
@@ -34,11 +36,7 @@ namespace ExtendedToolbar.Tweaks
             this.host = host;
             this.settings = settings;
             AlwaysPresent = true;
-        }
 
-        [BackgroundDependencyLoader]
-        private void load()
-        {
             settings.NotificationSidebarPosition.BindValueChanged(_ => updateLayout(), true);
             settings.ToastPosition.BindValueChanged(_ => updateLayout(), true);
             settings.MaxVisibleToasts.BindValueChanged(_ => applyMaxVisibleToasts(), true);
@@ -93,7 +91,7 @@ namespace ExtendedToolbar.Tweaks
                 {
                     toastTray = toastTrayField?.GetValue(notificationOverlay) as CompositeDrawable
                                 ?? notificationOverlay.ChildrenOfType<CompositeDrawable>().FirstOrDefault(c => c.GetType().Name.Contains("ToastTray", StringComparison.OrdinalIgnoreCase));
-                    
+
                     if (toastTray != null)
                     {
                         ExtendedToolbarLog.Info($"NotificationLayoutManager: Found toastTray ({toastTray.GetHashCode()})");
@@ -134,42 +132,40 @@ namespace ExtendedToolbar.Tweaks
                     }
                 }
 
-                // 2. Позиционирование всплывающих тостов (toastTray)
+                // 2. Позиционирование всплывающих тостов (toastTray + toastFlow)
                 if (toastTray != null)
                 {
                     var toastPos = settings.ToastPosition.Value;
 
-                    switch (toastPos)
+                    Anchor anchor = toastPos switch
                     {
-                        case ToastPosition.TopLeft:
-                            toastTray.Anchor = Anchor.TopLeft;
-                            toastTray.Origin = Anchor.TopLeft;
-                            toastTray.Margin = new MarginPadding { Top = 50, Left = 15 };
-                            break;
+                        ToastPosition.TopLeft => Anchor.TopLeft,
+                        ToastPosition.TopCentre => Anchor.TopCentre,
+                        ToastPosition.TopRight => Anchor.TopRight,
+                        ToastPosition.BottomLeft => Anchor.BottomLeft,
+                        ToastPosition.BottomRight => Anchor.BottomRight,
+                        _ => Anchor.TopRight
+                    };
 
-                        case ToastPosition.TopCentre:
-                            toastTray.Anchor = Anchor.TopCentre;
-                            toastTray.Origin = Anchor.TopCentre;
-                            toastTray.Margin = new MarginPadding { Top = 50 };
-                            break;
+                    MarginPadding margin = toastPos switch
+                    {
+                        ToastPosition.TopLeft => new MarginPadding { Top = 50, Left = 15 },
+                        ToastPosition.TopCentre => new MarginPadding { Top = 50 },
+                        ToastPosition.TopRight => new MarginPadding { Top = 50, Right = 15 },
+                        ToastPosition.BottomLeft => new MarginPadding { Bottom = 60, Left = 15 },
+                        ToastPosition.BottomRight => new MarginPadding { Bottom = 60, Right = 15 },
+                        _ => new MarginPadding { Top = 50, Right = 15 }
+                    };
 
-                        case ToastPosition.TopRight:
-                            toastTray.Anchor = Anchor.TopRight;
-                            toastTray.Origin = Anchor.TopRight;
-                            toastTray.Margin = new MarginPadding { Top = 50, Right = 15 };
-                            break;
+                    toastTray.Anchor = anchor;
+                    toastTray.Origin = anchor;
+                    toastTray.Position = Vector2.Zero;
+                    toastTray.Margin = margin;
 
-                        case ToastPosition.BottomLeft:
-                            toastTray.Anchor = Anchor.BottomLeft;
-                            toastTray.Origin = Anchor.BottomLeft;
-                            toastTray.Margin = new MarginPadding { Bottom = 60, Left = 15 };
-                            break;
-
-                        case ToastPosition.BottomRight:
-                            toastTray.Anchor = Anchor.BottomRight;
-                            toastTray.Origin = Anchor.BottomRight;
-                            toastTray.Margin = new MarginPadding { Bottom = 60, Right = 15 };
-                            break;
+                    if (toastFlowField?.GetValue(toastTray) is Drawable toastFlow)
+                    {
+                        toastFlow.Anchor = anchor;
+                        toastFlow.Origin = anchor;
                     }
                 }
 

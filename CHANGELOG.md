@@ -2,6 +2,14 @@
 
 All notable changes to Extended Toolbar are documented in this file.
 
+## [1.0.5] - 2026-08-23
+
+### Fixed
+- **Component Lifecycle & Settings Binding Activation**: Migrated all bindable event handlers directly into constructors and properly added `NotificationLayoutManager` and `ToolbarProfileLayoutManager` into the active scene graph, fixing non-responsive settings changes.
+- **Profile Button Formatting & Dynamic Shrinking**: Added `BypassAutoSizeAxes = Axes.Both` when hiding username or avatar, enabling the profile button to cleanly shrink to the exact width of the single visible element.
+- **Rank & PP Stats Positioning**: Correctly targeted `TransientUserStatisticsUpdateDisplay` inside `ToolbarUserButton` to anchor statistics popups to the Left or Right of the user profile.
+- **Dual Toast & Overlay Anchor Synchronization**: Synchronized `Anchor`, `Origin`, and `Margin` across both `toastTray` and `toastFlow` for all 5 monitor positions, with seamless left/right sliding animations for the notification sidebar.
+
 ## [1.0.4] - 2026-08-23
 
 ### Fixed

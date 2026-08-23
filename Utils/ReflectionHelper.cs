@@ -72,11 +72,11 @@ namespace ExtendedToolbar.Utils
             return field != null ? (T?)field.GetValue(instance) : default;
         }
 
-        public static FillFlowContainer? FindStatsFlow(Drawable root)
+        public static Drawable? FindStatsDisplay(Drawable root)
         {
             if (root == null) return null;
-            return root.ChildrenOfType<FillFlowContainer>()
-                .FirstOrDefault(f => f.ChildrenOfType<OsuSpriteText>().Any());
+            return root.ChildrenOfType<Drawable>()
+                .FirstOrDefault(c => c.GetType().Name.Contains("TransientUserStatisticsUpdateDisplay", StringComparison.OrdinalIgnoreCase));
         }
 
         public static Box? FindFlashBox(Drawable root)

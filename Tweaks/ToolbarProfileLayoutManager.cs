@@ -28,16 +28,14 @@ namespace ExtendedToolbar.Tweaks
             this.host = host;
             this.settings = settings;
             AlwaysPresent = true;
+
+            settings.UserProfileDisplayMode.BindValueChanged(_ => Apply(), true);
+            settings.ProfileStatsPosition.BindValueChanged(_ => Apply(), true);
         }
 
         public void Attach(Drawable? userButton)
         {
             targetUserButton = userButton;
-            if (targetUserButton == null) return;
-
-            settings.UserProfileDisplayMode.BindValueChanged(_ => Apply(), true);
-            settings.ProfileStatsPosition.BindValueChanged(_ => Apply(), true);
-
             Apply();
         }
 
@@ -76,7 +74,9 @@ namespace ExtendedToolbar.Tweaks
                     case UserProfileDisplayMode.Default:
                     case UserProfileDisplayMode.WithSeparator:
                         avatar.Alpha = 1;
+                        avatar.BypassAutoSizeAxes = Axes.None;
                         username.Alpha = 1;
+                        username.BypassAutoSizeAxes = Axes.None;
                         flow.Add(username);
                         flow.Add(avatar);
                         foreach (var other in otherChildren) flow.Add(other);
@@ -85,7 +85,9 @@ namespace ExtendedToolbar.Tweaks
                     case UserProfileDisplayMode.AvatarLeft:
                     case UserProfileDisplayMode.AvatarLeftWithSep:
                         avatar.Alpha = 1;
+                        avatar.BypassAutoSizeAxes = Axes.None;
                         username.Alpha = 1;
+                        username.BypassAutoSizeAxes = Axes.None;
                         flow.Add(avatar);
                         flow.Add(username);
                         foreach (var other in otherChildren) flow.Add(other);
@@ -93,15 +95,19 @@ namespace ExtendedToolbar.Tweaks
 
                     case UserProfileDisplayMode.AvatarOnly:
                         avatar.Alpha = 1;
+                        avatar.BypassAutoSizeAxes = Axes.None;
                         username.Alpha = 0;
+                        username.BypassAutoSizeAxes = Axes.Both;
                         flow.Add(avatar);
                         flow.Add(username);
                         foreach (var other in otherChildren) flow.Add(other);
                         break;
 
                     case UserProfileDisplayMode.UsernameOnly:
-                        avatar.Alpha = 0;
                         username.Alpha = 1;
+                        username.BypassAutoSizeAxes = Axes.None;
+                        avatar.Alpha = 0;
+                        avatar.BypassAutoSizeAxes = Axes.Both;
                         flow.Add(username);
                         flow.Add(avatar);
                         foreach (var other in otherChildren) flow.Add(other);
@@ -120,31 +126,50 @@ namespace ExtendedToolbar.Tweaks
 
             try
             {
-                var statsFlow = ReflectionHelper.FindStatsFlow(userButton);
-                if (statsFlow == null) return;
+                var statsDisplay = ReflectionHelper.FindStatsDisplay(userButton);
+                if (statsDisplay == null) return;
 
                 if (position == ProfileStatsPosition.Left)
                 {
-                    statsFlow.Anchor = Anchor.CentreLeft;
-                    statsFlow.Origin = Anchor.CentreLeft;
-                    if (statsFlow.Parent is FillFlowContainer parentFlow)
+                    statsDisplay.Anchor = Anchor.CentreLeft;
+                    statsDisplay.Origin = Anchor.CentreRight;
+                    statsDisplay.X = -5f;
+
+                    if (statsDisplay.Parent is Drawable parentContainer)
                     {
-                        parentFlow.SetLayoutPosition(statsFlow, -100);
+                        parentContainer.Anchor = Anchor.CentreLeft;
+                        parentContainer.Origin = Anchor.CentreRight;
                     }
                 }
                 else
                 {
-                    statsFlow.Anchor = Anchor.CentreRight;
-                    statsFlow.Origin = Anchor.CentreRight;
-                    if (statsFlow.Parent is FillFlowContainer parentFlow)
+                    statsDisplay.Anchor = Anchor.CentreRight;
+                    statsDisplay.Origin = Anchor.CentreLeft;
+                    statsDisplay.X = 5f;
+
+                    if (statsDisplay.Parent is Drawable parentContainer)
                     {
-                        parentFlow.SetLayoutPosition(statsFlow, 100);
+                        parentContainer.Anchor = Anchor.CentreRight;
+                        parentContainer.Origin = Anchor.CentreLeft;
                     }
                 }
             }
             catch (Exception ex)
             {
                 ExtendedToolbarLog.Error("ApplyProfileStatsPosition failed", ex);
+            }
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            if (IsDisposed || targetUserButton == null) return;
+
+            // Периодически следим за сжатием и скрытием элементов при обновлении профиля игрой
+            var mode = settings.UserProfileDisplayMode.Value;
+            if (mode == UserProfileDisplayMode.UsernameOnly || mode == UserProfileDisplayMode.AvatarOnly)
+            {
+                ApplyUserProfileDisplayMode(targetUserButton, mode);
             }
         }
     }
