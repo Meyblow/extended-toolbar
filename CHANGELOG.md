@@ -2,6 +2,12 @@
 
 All notable changes to Extended Toolbar are documented in this file.
 
+## [1.0.6] - 2026-08-23
+
+### Fixed
+- **Fullscreen Notification Overlay**: Made `NotificationOverlay` occupy the full viewport (`RelativeSizeAxes = Axes.Both`), resolving issues where toast notifications and left-side sliding sidebars were constrained to the default right-hand 400px column.
+- **Direct Child Flow Reordering**: Fixed `ToolbarProfileLayoutManager` to directly manipulate immediate children of `ToolbarUserButton.Flow` (`usernameText` and `avatarContainer`), eliminating repetitive `May not add a drawable to multiple containers` exceptions.
+
 ## [1.0.5] - 2026-08-23
 
 ### Fixed

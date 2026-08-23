@@ -58,59 +58,68 @@ namespace ExtendedToolbar.Tweaks
 
                 if (flow == null) return;
 
-                var avatar = flow.Children.FirstOrDefault(c => c is UpdateableAvatar || c.GetType().Name.Contains("Avatar", StringComparison.OrdinalIgnoreCase))
-                             ?? userButton.GetType().GetField("avatar", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(userButton) as Drawable;
+                var directChildren = flow.Children.ToList();
+                if (directChildren.Count < 2) return;
 
-                var username = flow.Children.FirstOrDefault(c => c is OsuSpriteText || c is SpriteText || c.GetType().Name.Contains("Username", StringComparison.OrdinalIgnoreCase) || c.GetType().Name.Contains("Text", StringComparison.OrdinalIgnoreCase))
-                               ?? userButton.GetType().GetField("usernameText", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(userButton) as Drawable;
+                var username = directChildren.FirstOrDefault(c => c is OsuSpriteText || c is SpriteText || c.GetType().Name.Contains("Username", StringComparison.OrdinalIgnoreCase) || c.GetType().Name.Contains("Text", StringComparison.OrdinalIgnoreCase));
+                var avatarContainer = directChildren.FirstOrDefault(c => c != username && (c is Container || c is UpdateableAvatar || c.GetType().Name.Contains("Avatar", StringComparison.OrdinalIgnoreCase) || c.GetType().Name.Contains("Container", StringComparison.OrdinalIgnoreCase)));
 
-                if (avatar == null || username == null) return;
+                if (avatarContainer == null && directChildren.Count == 2)
+                {
+                    avatarContainer = directChildren.FirstOrDefault(c => c != username);
+                }
 
-                var otherChildren = flow.Children.Where(c => c != avatar && c != username).ToList();
-                flow.Clear(disposeChildren: false);
+                if (avatarContainer == null || username == null) return;
+
+                bool shouldBeAvatarFirst = mode == UserProfileDisplayMode.AvatarLeft || mode == UserProfileDisplayMode.AvatarLeftWithSep || mode == UserProfileDisplayMode.AvatarOnly;
+                bool isAvatarFirst = flow.Children.FirstOrDefault() == avatarContainer;
+
+                if (isAvatarFirst != shouldBeAvatarFirst)
+                {
+                    var otherChildren = flow.Children.Where(c => c != avatarContainer && c != username).ToList();
+                    flow.Clear(disposeChildren: false);
+
+                    if (shouldBeAvatarFirst)
+                    {
+                        flow.Add(avatarContainer);
+                        flow.Add(username);
+                    }
+                    else
+                    {
+                        flow.Add(username);
+                        flow.Add(avatarContainer);
+                    }
+
+                    foreach (var other in otherChildren)
+                    {
+                        flow.Add(other);
+                    }
+                }
 
                 switch (mode)
                 {
                     case UserProfileDisplayMode.Default:
                     case UserProfileDisplayMode.WithSeparator:
-                        avatar.Alpha = 1;
-                        avatar.BypassAutoSizeAxes = Axes.None;
-                        username.Alpha = 1;
-                        username.BypassAutoSizeAxes = Axes.None;
-                        flow.Add(username);
-                        flow.Add(avatar);
-                        foreach (var other in otherChildren) flow.Add(other);
-                        break;
-
                     case UserProfileDisplayMode.AvatarLeft:
                     case UserProfileDisplayMode.AvatarLeftWithSep:
-                        avatar.Alpha = 1;
-                        avatar.BypassAutoSizeAxes = Axes.None;
+                        avatarContainer.Alpha = 1;
+                        avatarContainer.BypassAutoSizeAxes = Axes.None;
                         username.Alpha = 1;
                         username.BypassAutoSizeAxes = Axes.None;
-                        flow.Add(avatar);
-                        flow.Add(username);
-                        foreach (var other in otherChildren) flow.Add(other);
                         break;
 
                     case UserProfileDisplayMode.AvatarOnly:
-                        avatar.Alpha = 1;
-                        avatar.BypassAutoSizeAxes = Axes.None;
+                        avatarContainer.Alpha = 1;
+                        avatarContainer.BypassAutoSizeAxes = Axes.None;
                         username.Alpha = 0;
                         username.BypassAutoSizeAxes = Axes.Both;
-                        flow.Add(avatar);
-                        flow.Add(username);
-                        foreach (var other in otherChildren) flow.Add(other);
                         break;
 
                     case UserProfileDisplayMode.UsernameOnly:
                         username.Alpha = 1;
                         username.BypassAutoSizeAxes = Axes.None;
-                        avatar.Alpha = 0;
-                        avatar.BypassAutoSizeAxes = Axes.Both;
-                        flow.Add(username);
-                        flow.Add(avatar);
-                        foreach (var other in otherChildren) flow.Add(other);
+                        avatarContainer.Alpha = 0;
+                        avatarContainer.BypassAutoSizeAxes = Axes.Both;
                         break;
                 }
             }

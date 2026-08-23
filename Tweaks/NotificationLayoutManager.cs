@@ -81,6 +81,14 @@ namespace ExtendedToolbar.Tweaks
 
             if (notificationOverlay != null)
             {
+                // Делаем сам оверлей полноэкранным, чтобы тосты могли свободно размещаться по всем углам экрана,
+                // а шторка могла открываться как слева, так и справа.
+                notificationOverlay.RelativeSizeAxes = Axes.Both;
+                notificationOverlay.Size = Vector2.One;
+                notificationOverlay.Anchor = Anchor.TopLeft;
+                notificationOverlay.Origin = Anchor.TopLeft;
+                notificationOverlay.Position = Vector2.Zero;
+
                 if (mainContent == null)
                 {
                     mainContent = mainContentField?.GetValue(notificationOverlay) as Container
@@ -113,12 +121,21 @@ namespace ExtendedToolbar.Tweaks
 
             try
             {
+                // Делаем сам оверлей полноэкранным
+                notificationOverlay.RelativeSizeAxes = Axes.Both;
+                notificationOverlay.Size = Vector2.One;
+                notificationOverlay.Anchor = Anchor.TopLeft;
+                notificationOverlay.Origin = Anchor.TopLeft;
+                notificationOverlay.Position = Vector2.Zero;
+
                 // 1. Позиционирование шторки (mainContent)
                 if (mainContent != null)
                 {
                     bool isLeft = settings.NotificationSidebarPosition.Value == NotificationSidebarPosition.Left;
                     float width = mainContent.DrawWidth > 0 ? mainContent.DrawWidth : 400f;
 
+                    mainContent.RelativeSizeAxes = Axes.Y;
+                    mainContent.Width = width;
                     mainContent.Anchor = isLeft ? Anchor.TopLeft : Anchor.TopRight;
                     mainContent.Origin = isLeft ? Anchor.TopLeft : Anchor.TopRight;
 
