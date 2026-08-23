@@ -2,6 +2,12 @@
 
 All notable changes to Extended Toolbar are documented in this file.
 
+## [1.0.3] - 2026-08-23
+
+### Fixed
+- **Notification Overlay & Sidebar Opening Fix**: Rewrote `NotificationOverlay` patch to non-destructive `Postfix` hooks, ensuring native `VisibilityContainer` state management, sounds, and focus work seamlessly while animating `mainContent` from Left or Right side.
+- **Accurate Toast Notifications Positioning**: Directly targeted `toastTray` component inside `NotificationOverlay` to reliably position floating toast popups across all 5 screen zones (Top Left, Top Centre, Top Right, Bottom Left, Bottom Right).
+
 ## [1.0.2] - 2026-08-23
 
 ### Added

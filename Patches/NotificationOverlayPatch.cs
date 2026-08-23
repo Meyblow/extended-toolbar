@@ -1,3 +1,4 @@
+using System.Reflection;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Overlays;
@@ -8,93 +9,86 @@ using ExtendedToolbar.Models;
 namespace ExtendedToolbar.Patches
 {
     /// <summary>
-    /// Патч на NotificationOverlay.PopIn для надежной анимации открытия шторки со стороны Left или Right.
+    /// Патч на NotificationOverlay.PopIn для плавной анимации открытия шторки mainContent со стороны Left или Right.
     /// </summary>
     public sealed class NotificationOverlayPopInPatch : PluginPatch<ExtendedToolbarPlugin>
     {
         private static ExtendedToolbarSettings? settings;
+        private static readonly FieldInfo? mainContentField = typeof(NotificationOverlay).GetField("mainContent", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public NotificationOverlayPopInPatch(ExtendedToolbarPlugin plugin, IOsuCcPluginHost host, ExtendedToolbarSettings settings)
-            : base(plugin, host, "osu.Game.Overlays.NotificationOverlay", "PopIn", MethodType.Prefix)
+            : base(plugin, host, "osu.Game.Overlays.NotificationOverlay", "PopIn", MethodType.Postfix)
         {
             NotificationOverlayPopInPatch.settings = settings;
         }
 
-        public static bool Prefix(OverlayContainer __instance)
+        public static void Postfix(NotificationOverlay __instance)
         {
             if (__instance == null || settings == null)
-                return true;
+                return;
 
-            float width = __instance.DrawWidth > 0 ? __instance.DrawWidth : 400f;
+            var mainContent = mainContentField?.GetValue(__instance) as Container;
+            if (mainContent == null)
+                return;
+
             bool isLeft = settings.NotificationSidebarPosition.Value == NotificationSidebarPosition.Left;
 
             if (isLeft)
             {
-                __instance.Anchor = Anchor.TopLeft;
-                __instance.Origin = Anchor.TopLeft;
-                __instance.Y = 0f;
-                __instance.ClearTransforms();
-                __instance.TransformTo(nameof(Drawable.X), -width);
-                __instance.TransformTo(nameof(Drawable.X), 0f, 400, Easing.OutQuint);
-                __instance.FadeIn(200, Easing.OutQuint);
-                return false;
+                mainContent.Anchor = Anchor.TopLeft;
+                mainContent.Origin = Anchor.TopLeft;
+                mainContent.ClearTransforms(targetMember: nameof(Drawable.X));
+                mainContent.MoveToX(0, 500, Easing.OutQuint);
             }
             else
             {
-                __instance.Anchor = Anchor.TopRight;
-                __instance.Origin = Anchor.TopRight;
-                __instance.Y = 0f;
-                __instance.ClearTransforms();
-                __instance.TransformTo(nameof(Drawable.X), width);
-                __instance.TransformTo(nameof(Drawable.X), 0f, 400, Easing.OutQuint);
-                __instance.FadeIn(200, Easing.OutQuint);
-                return false;
+                mainContent.Anchor = Anchor.TopRight;
+                mainContent.Origin = Anchor.TopRight;
+                mainContent.ClearTransforms(targetMember: nameof(Drawable.X));
+                mainContent.MoveToX(0, 500, Easing.OutQuint);
             }
         }
     }
 
     /// <summary>
-    /// Патч на NotificationOverlay.PopOut для надежной анимации закрытия шторки в сторону Left или Right.
+    /// Патч на NotificationOverlay.PopOut для плавной анимации закрытия шторки mainContent в сторону Left или Right.
     /// </summary>
     public sealed class NotificationOverlayPopOutPatch : PluginPatch<ExtendedToolbarPlugin>
     {
         private static ExtendedToolbarSettings? settings;
+        private static readonly FieldInfo? mainContentField = typeof(NotificationOverlay).GetField("mainContent", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public NotificationOverlayPopOutPatch(ExtendedToolbarPlugin plugin, IOsuCcPluginHost host, ExtendedToolbarSettings settings)
-            : base(plugin, host, "osu.Game.Overlays.NotificationOverlay", "PopOut", MethodType.Prefix)
+            : base(plugin, host, "osu.Game.Overlays.NotificationOverlay", "PopOut", MethodType.Postfix)
         {
             NotificationOverlayPopOutPatch.settings = settings;
         }
 
-        public static bool Prefix(OverlayContainer __instance)
+        public static void Postfix(NotificationOverlay __instance)
         {
             if (__instance == null || settings == null)
-                return true;
+                return;
 
-            float width = __instance.DrawWidth > 0 ? __instance.DrawWidth : 400f;
+            var mainContent = mainContentField?.GetValue(__instance) as Container;
+            if (mainContent == null)
+                return;
+
             bool isLeft = settings.NotificationSidebarPosition.Value == NotificationSidebarPosition.Left;
+            float width = mainContent.DrawWidth > 0 ? mainContent.DrawWidth : 400f;
 
             if (isLeft)
             {
-                __instance.Anchor = Anchor.TopLeft;
-                __instance.Origin = Anchor.TopLeft;
-                __instance.Y = 0f;
-                __instance.ClearTransforms();
-                __instance.TransformTo(nameof(Drawable.X), 0f);
-                __instance.TransformTo(nameof(Drawable.X), -width, 400, Easing.OutQuint);
-                __instance.FadeOut(200, Easing.OutQuint);
-                return false;
+                mainContent.Anchor = Anchor.TopLeft;
+                mainContent.Origin = Anchor.TopLeft;
+                mainContent.ClearTransforms(targetMember: nameof(Drawable.X));
+                mainContent.MoveToX(-width, 500, Easing.OutQuint);
             }
             else
             {
-                __instance.Anchor = Anchor.TopRight;
-                __instance.Origin = Anchor.TopRight;
-                __instance.Y = 0f;
-                __instance.ClearTransforms();
-                __instance.TransformTo(nameof(Drawable.X), 0f);
-                __instance.TransformTo(nameof(Drawable.X), width, 400, Easing.OutQuint);
-                __instance.FadeOut(200, Easing.OutQuint);
-                return false;
+                mainContent.Anchor = Anchor.TopRight;
+                mainContent.Origin = Anchor.TopRight;
+                mainContent.ClearTransforms(targetMember: nameof(Drawable.X));
+                mainContent.MoveToX(width, 500, Easing.OutQuint);
             }
         }
     }
