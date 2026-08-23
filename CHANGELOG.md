@@ -2,6 +2,11 @@
 
 All notable changes to Extended Toolbar are documented in this file.
 
+## [1.0.7] - 2026-08-23
+
+### Fixed
+- **Fixed Toast Width**: Explicitly set `toastTray.RelativeSizeAxes = Axes.None` and `toastTray.Width = 400f` so individual toast notifications keep their neat compact width instead of stretching horizontally across the full screen.
+
 ## [1.0.6] - 2026-08-23
 
 ### Fixed

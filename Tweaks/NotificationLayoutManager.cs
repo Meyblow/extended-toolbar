@@ -152,6 +152,9 @@ namespace ExtendedToolbar.Tweaks
                 // 2. Позиционирование всплывающих тостов (toastTray + toastFlow)
                 if (toastTray != null)
                 {
+                    toastTray.RelativeSizeAxes = Axes.None;
+                    toastTray.Width = 400f;
+
                     var toastPos = settings.ToastPosition.Value;
 
                     Anchor anchor = toastPos switch
