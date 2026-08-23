@@ -25,9 +25,11 @@ namespace ExtendedToolbar.UI
         {
             this.settings = settings;
 
-            // ==========================================
-            // РАЗДЕЛ 1: ТУЛБАР И ПРЕСЕТЫ
-            // ==========================================
+            // =========================================================================
+            // 📁 СЕКЦИЯ 1: ПРЕСЕТЫ И МАКЕТ (LAYOUT & PRESETS)
+            // =========================================================================
+            Add(new SettingsSectionHeader(ExtendedToolbarStrings.SectionLayoutPresets));
+
             var presets = ToolbarPresetManager.GetAvailablePresets();
             var activePreset = settings.ActivePresetName.Value;
             if (!presets.Contains(activePreset))
@@ -61,18 +63,18 @@ namespace ExtendedToolbar.UI
 
             Add(presetDropdown);
 
+            // Главное целевое действие (Edit Mode)
             Add(new SettingsButton
             {
                 Text = ExtendedToolbarStrings.ButtonEnterEditMode,
-                Margin = new MarginPadding { Top = 6f },
+                Margin = new MarginPadding { Top = 4f, Bottom = 2f },
                 Action = () => ToolbarLayoutManager.Instance?.EnterEditMode()
             });
 
-            Add(new SettingsButton
-            {
-                Text = ExtendedToolbarStrings.ButtonSavePreset,
-                Margin = new MarginPadding { Top = 6f },
-                Action = () =>
+            // Компактная сетка 2x2 для управления пресетами и обмена
+            Add(new SettingsDoubleButtonRow(
+                ExtendedToolbarStrings.ButtonSavePreset,
+                () =>
                 {
                     ToolbarLayoutManager.Instance?.ShowSavePresetDialog(savedName =>
                     {
@@ -80,28 +82,23 @@ namespace ExtendedToolbar.UI
                         presetDropdown.Items = updatedPresets;
                         presetDropdown.Current.Value = savedName;
                     });
-                }
-            });
+                },
+                ExtendedToolbarStrings.ButtonOpenPresetsFolder,
+                ToolbarPresetManager.OpenPresetsFolder
+            ));
 
-            Add(new SettingsButton
-            {
-                Text = ExtendedToolbarStrings.ButtonCopyCode,
-                Margin = new MarginPadding { Top = 6f },
-                Action = () =>
+            Add(new SettingsDoubleButtonRow(
+                ExtendedToolbarStrings.ButtonCopyCode,
+                () =>
                 {
                     var config = ToolbarLayoutManager.Instance?.GetCurrentConfig() ?? ToolbarLayoutConfig.CreateDefault();
                     string code = config.ExportCode();
                     var clipboard = ExtendedToolbarPlugin.Instance?.Host?.GetDependency<Clipboard>();
                     clipboard?.SetText(code);
                     ExtendedToolbarPlugin.Instance?.Host?.Notify(ExtendedToolbarStrings.NotifyClipboardCopied, NotificationKind.Success);
-                }
-            });
-
-            Add(new SettingsButton
-            {
-                Text = ExtendedToolbarStrings.ButtonImportCode,
-                Margin = new MarginPadding { Top = 6f },
-                Action = () =>
+                },
+                ExtendedToolbarStrings.ButtonImportCode,
+                () =>
                 {
                     var clipboard = ExtendedToolbarPlugin.Instance?.Host?.GetDependency<Clipboard>();
                     string? code = clipboard?.GetText();
@@ -123,19 +120,13 @@ namespace ExtendedToolbar.UI
                         ExtendedToolbarPlugin.Instance?.Host?.Notify(ExtendedToolbarStrings.NotifyImportInvalid, NotificationKind.Error);
                     }
                 }
-            });
+            ));
 
-            Add(new SettingsButton
-            {
-                Text = ExtendedToolbarStrings.ButtonOpenPresetsFolder,
-                Margin = new MarginPadding { Top = 6f },
-                Action = ToolbarPresetManager.OpenPresetsFolder
-            });
-
-            Add(new SettingsButton
+            // Кнопка сброса
+            Add(new DangerousSettingsButton
             {
                 Text = ExtendedToolbarStrings.ButtonResetToDefault,
-                Margin = new MarginPadding { Top = 6f, Bottom = 6f },
+                Margin = new MarginPadding { Top = 2f, Bottom = 6f },
                 Action = () =>
                 {
                     ToolbarLayoutManager.Instance?.ResetToDefault();
@@ -143,14 +134,51 @@ namespace ExtendedToolbar.UI
                 }
             });
 
-            // ==========================================
-            // РАЗДЕЛ 2: ВИЗУАЛЬНЫЙ СТИЛЬ (AESTHETICS)
-            // ==========================================
+            // =========================================================================
+            // 🏝️ СЕКЦИЯ 2: ПЛАВАЮЩИЙ ОСТРОВ И ГЕОМЕТРИЯ (FLOATING ISLAND & GEOMETRY)
+            // =========================================================================
+            Add(new SettingsSectionHeader(ExtendedToolbarStrings.SectionFloatingIsland));
+
             Add(new SettingsCheckbox
             {
                 LabelText = ExtendedToolbarStrings.FloatingIslandCheckbox,
-                Margin = new MarginPadding { Top = 10f },
+                Margin = new MarginPadding { Top = 4f },
                 Current = settings.FloatingIslandMode
+            });
+
+            var widthBindable = new BindableFloat(settings.ToolbarWidth.Value)
+            {
+                MinValue = 0.3f,
+                MaxValue = 1f,
+                Precision = 0.005f
+            };
+            widthBindable.BindValueChanged(e => settings.ToolbarWidth.Value = e.NewValue);
+            settings.ToolbarWidth.BindValueChanged(e => widthBindable.Value = e.NewValue);
+
+            Add(new SettingsSlider<float>
+            {
+                LabelText = ExtendedToolbarStrings.ToolbarWidthSlider,
+                Margin = new MarginPadding { Top = 4f },
+                Current = widthBindable,
+                DisplayAsPercentage = true,
+                KeyboardStep = 0.005f
+            });
+
+            var heightBindable = new BindableFloat(settings.ToolbarHeight.Value)
+            {
+                MinValue = 26f,
+                MaxValue = 40f,
+                Precision = 1f
+            };
+            heightBindable.BindValueChanged(e => settings.ToolbarHeight.Value = e.NewValue);
+            settings.ToolbarHeight.BindValueChanged(e => heightBindable.Value = e.NewValue);
+
+            Add(new SettingsSlider<float>
+            {
+                LabelText = ExtendedToolbarStrings.ToolbarHeightSlider,
+                Margin = new MarginPadding { Top = 4f },
+                Current = heightBindable,
+                KeyboardStep = 1f
             });
 
             var cornerRadiusBindable = new BindableFloat(settings.ToolbarCornerRadius.Value)
@@ -165,7 +193,7 @@ namespace ExtendedToolbar.UI
             Add(new SettingsSlider<float>
             {
                 LabelText = ExtendedToolbarStrings.ToolbarCornerRadiusSlider,
-                Margin = new MarginPadding { Top = 6f },
+                Margin = new MarginPadding { Top = 4f },
                 Current = cornerRadiusBindable,
                 KeyboardStep = 1f
             });
@@ -182,45 +210,10 @@ namespace ExtendedToolbar.UI
             Add(new SettingsSlider<float>
             {
                 LabelText = ExtendedToolbarStrings.BackgroundOpacitySlider,
-                Margin = new MarginPadding { Top = 6f },
+                Margin = new MarginPadding { Top = 4f },
                 Current = opacityBindable,
                 DisplayAsPercentage = true,
                 KeyboardStep = 0.05f
-            });
-
-            var heightBindable = new BindableFloat(settings.ToolbarHeight.Value)
-            {
-                MinValue = 26f,
-                MaxValue = 40f,
-                Precision = 1f
-            };
-            heightBindable.BindValueChanged(e => settings.ToolbarHeight.Value = e.NewValue);
-            settings.ToolbarHeight.BindValueChanged(e => heightBindable.Value = e.NewValue);
-
-            Add(new SettingsSlider<float>
-            {
-                LabelText = ExtendedToolbarStrings.ToolbarHeightSlider,
-                Margin = new MarginPadding { Top = 6f },
-                Current = heightBindable,
-                KeyboardStep = 1f
-            });
-
-            var widthBindable = new BindableFloat(settings.ToolbarWidth.Value)
-            {
-                MinValue = 0.3f,
-                MaxValue = 1f,
-                Precision = 0.005f
-            };
-            widthBindable.BindValueChanged(e => settings.ToolbarWidth.Value = e.NewValue);
-            settings.ToolbarWidth.BindValueChanged(e => widthBindable.Value = e.NewValue);
-
-            Add(new SettingsSlider<float>
-            {
-                LabelText = ExtendedToolbarStrings.ToolbarWidthSlider,
-                Margin = new MarginPadding { Top = 6f },
-                Current = widthBindable,
-                DisplayAsPercentage = true,
-                KeyboardStep = 0.005f
             });
 
             var offsetXBindable = new BindableFloat(settings.ToolbarOffsetX.Value)
@@ -235,7 +228,7 @@ namespace ExtendedToolbar.UI
             Add(new SettingsSlider<float>
             {
                 LabelText = ExtendedToolbarStrings.ToolbarOffsetXSlider,
-                Margin = new MarginPadding { Top = 6f },
+                Margin = new MarginPadding { Top = 4f },
                 Current = offsetXBindable,
                 KeyboardStep = 1f
             });
@@ -252,7 +245,7 @@ namespace ExtendedToolbar.UI
             Add(new SettingsSlider<float>
             {
                 LabelText = ExtendedToolbarStrings.ToolbarOffsetYSlider,
-                Margin = new MarginPadding { Top = 6f },
+                Margin = new MarginPadding { Top = 4f },
                 Current = offsetYBindable,
                 KeyboardStep = 1f
             });
@@ -269,67 +262,72 @@ namespace ExtendedToolbar.UI
             Add(new SettingsSlider<float>
             {
                 LabelText = ExtendedToolbarStrings.ToolbarSpacingSlider,
-                Margin = new MarginPadding { Top = 6f },
+                Margin = new MarginPadding { Top = 4f },
                 Current = spacingBindable,
                 KeyboardStep = 1f
             });
 
             Add(new SettingsCheckbox
             {
-                LabelText = ExtendedToolbarStrings.NeonGlowLineCheckbox,
-                Margin = new MarginPadding { Top = 6f },
-                Current = settings.NeonGlowLine
+                LabelText = ExtendedToolbarStrings.AdaptScreensToIslandCheckbox,
+                Margin = new MarginPadding { Top = 4f },
+                Current = settings.AdaptScreensToIsland
             });
 
-            var glowOffsetBindable = new BindableFloat(settings.NeonGlowOffset.Value)
+            Add(new SettingsCheckbox
             {
-                MinValue = -5f,
-                MaxValue = 15f,
-                Precision = 1f
+                LabelText = ExtendedToolbarStrings.SeamlessRulesetSelectorCheckbox,
+                Margin = new MarginPadding { Top = 4f },
+                Current = settings.SeamlessRulesetSelector
+            });
+
+            // =========================================================================
+            // ✨ СЕКЦИЯ 3: ФОНОВЫЕ ЭФФЕКТЫ И ЗАТЕМНЕНИЕ (BACKGROUND EFFECTS)
+            // =========================================================================
+            Add(new SettingsSectionHeader(ExtendedToolbarStrings.SectionBackgroundEffects));
+
+            var darkGlowBindable = new BindableFloat(settings.TopScreenDarkGlow.Value)
+            {
+                MinValue = 0f,
+                MaxValue = 1f,
+                Precision = 0.05f
             };
-            glowOffsetBindable.BindValueChanged(e => settings.NeonGlowOffset.Value = e.NewValue);
-            settings.NeonGlowOffset.BindValueChanged(e => glowOffsetBindable.Value = e.NewValue);
+            darkGlowBindable.BindValueChanged(e => settings.TopScreenDarkGlow.Value = e.NewValue);
+            settings.TopScreenDarkGlow.BindValueChanged(e => darkGlowBindable.Value = e.NewValue);
 
             Add(new SettingsSlider<float>
             {
-                LabelText = ExtendedToolbarStrings.NeonGlowOffsetSlider,
-                Margin = new MarginPadding { Top = 6f },
-                Current = glowOffsetBindable,
-                KeyboardStep = 1f
+                LabelText = ExtendedToolbarStrings.TopScreenDarkGlowSlider,
+                Margin = new MarginPadding { Top = 4f },
+                Current = darkGlowBindable,
+                DisplayAsPercentage = true,
+                KeyboardStep = 0.05f
             });
 
-            Add(new SettingsEnumDropdown<ToolbarAccentColor>
-            {
-                LabelText = ExtendedToolbarStrings.NeonAccentColorDropdown,
-                Margin = new MarginPadding { Top = 6f },
-                Current = settings.ToolbarAccentColor
-            });
+            // =========================================================================
+            // 👤 СЕКЦИЯ 4: ПРОФИЛЬ И РАЗДЕЛИТЕЛИ (PROFILE & SPACERS)
+            // =========================================================================
+            Add(new SettingsSectionHeader(ExtendedToolbarStrings.SectionProfileSpacers));
 
-            // ==========================================
-            // РАЗДЕЛ 3: РАЗДЕЛИТЕЛИ (СПЕЙСЕРЫ)
-            // ==========================================
-            Add(new SettingsEnumDropdown<SpacerStyle>
-            {
-                LabelText = ExtendedToolbarStrings.SpacerStyleDropdown,
-                Margin = new MarginPadding { Top = 10f },
-                Current = settings.SpacerStyle
-            });
-
-            // ==========================================
-            // РАЗДЕЛ 4: ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ
-            // ==========================================
             Add(new SettingsEnumDropdown<UserProfileDisplayMode>
             {
                 LabelText = ExtendedToolbarStrings.ProfileModeDropdown,
-                Margin = new MarginPadding { Top = 10f },
+                Margin = new MarginPadding { Top = 4f },
                 Current = settings.UserProfileDisplayMode
             });
 
             Add(new SettingsEnumDropdown<ProfileStatsPosition>
             {
                 LabelText = ExtendedToolbarStrings.ProfileStatsPositionDropdown,
-                Margin = new MarginPadding { Top = 6f },
+                Margin = new MarginPadding { Top = 4f },
                 Current = settings.ProfileStatsPosition
+            });
+
+            Add(new SettingsEnumDropdown<SpacerStyle>
+            {
+                LabelText = ExtendedToolbarStrings.SpacerStyleDropdown,
+                Margin = new MarginPadding { Top = 4f, Bottom = 8f },
+                Current = settings.SpacerStyle
             });
         }
     }

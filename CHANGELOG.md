@@ -2,6 +2,19 @@
 
 All notable changes to Extended Toolbar are documented in this file.
 
+## [1.0.1] - 2026-08-23
+
+### Added
+- **Top Screen Dark Glow / Vignette**: Adjustable background dark gradient slider (0% to 100%) positioned behind the toolbar to smoothly blend screen headers and backgrounds.
+- **Screen Adaptation for Floating Island (`ToolbarScreenAdapter`)**: Automatically applies soft rounded corners and subtle padding to SongSelect panels (`BeatmapInfoWedge` and `FilterControl`).
+- **Seamless Ruleset Selector**: Hides solid opaque background rectangles inside `ToolbarRulesetSelector` for floating and transparent toolbar styles.
+- **Structured 4-Section Settings Subsection**: Reorganized settings into 4 structured sections with headers and dividers:
+  - Layout & Presets
+  - Floating Island & Geometry
+  - Background Effects & Glow
+  - Profile & Spacers
+- **Compact 2x2 Action Button Grid (`SettingsDoubleButtonRow`)**: Replaced full-width vertical buttons with compact paired rows, reducing menu height by ~60%.
+
 ## [1.0.0] - 2026-08-23
 
 ### Added

@@ -9,7 +9,7 @@
     <PackageId>extended-toolbar</PackageId>
     <Title>Extended Toolbar</Title>
     <Description>Complete modular and customizable toolbar for osu!cc with custom layout, styles, positioning, and zones.</Description>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Priority>50</Priority>
     <IconGlyph>Columns</IconGlyph>
     <IsPlugin>true</IsPlugin>
@@ -24,6 +24,7 @@
   <ItemGroup>
     <PluginDocument Include="README.md" Title="README" IconGlyph="Book" />
     <PluginDocument Include="CHANGELOG.md" Title="Changelog" IconGlyph="History" />
+    <None Include="README.md;CHANGELOG.md;README.ru.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,7 +38,7 @@
   </ItemGroup>
 
   <Target Name="DeployToOsuCc" AfterTargets="Build" Condition="Exists('$(APPDATA)\osu\osu-cc\plugins\extended-toolbar')">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(APPDATA)\osu\osu-cc\plugins\extended-toolbar" ContinueOnError="true" />
+    <Copy SourceFiles="$(TargetPath);$(ProjectDir)README.md;$(ProjectDir)CHANGELOG.md;$(ProjectDir)README.ru.md" DestinationFolder="$(APPDATA)\osu\osu-cc\plugins\extended-toolbar" ContinueOnError="true" />
   </Target>
 
 </Project>

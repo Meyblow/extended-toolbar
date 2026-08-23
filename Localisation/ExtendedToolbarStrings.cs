@@ -14,6 +14,12 @@ namespace ExtendedToolbar.Localisation
         // Subsection Header
         public static LocalisableString Header => OsuCcLocalisation.Get(getKey(nameof(Header)), "Extended Toolbar");
 
+        // Section Headers
+        public static LocalisableString SectionLayoutPresets => OsuCcLocalisation.Get(getKey(nameof(SectionLayoutPresets)), "Layout & Presets");
+        public static LocalisableString SectionFloatingIsland => OsuCcLocalisation.Get(getKey(nameof(SectionFloatingIsland)), "Floating Island & Geometry");
+        public static LocalisableString SectionBackgroundEffects => OsuCcLocalisation.Get(getKey(nameof(SectionBackgroundEffects)), "Background Effects & Glow");
+        public static LocalisableString SectionProfileSpacers => OsuCcLocalisation.Get(getKey(nameof(SectionProfileSpacers)), "Profile & Spacers");
+
         // Section 1: Toolbar & Presets
         public static LocalisableString PresetDropdownLabel => OsuCcLocalisation.Get(getKey(nameof(PresetDropdownLabel)), "Layout Preset");
         public static LocalisableString DefaultPresetName => OsuCcLocalisation.Get(getKey(nameof(DefaultPresetName)), "Default");
@@ -35,16 +41,10 @@ namespace ExtendedToolbar.Localisation
         public static LocalisableString ToolbarOffsetXSlider => OsuCcLocalisation.Get(getKey(nameof(ToolbarOffsetXSlider)), "Toolbar Horizontal Offset");
         public static LocalisableString ToolbarOffsetYSlider => OsuCcLocalisation.Get(getKey(nameof(ToolbarOffsetYSlider)), "Toolbar Vertical Offset");
         public static LocalisableString ToolbarSpacingSlider => OsuCcLocalisation.Get(getKey(nameof(ToolbarSpacingSlider)), "Toolbar Item Spacing (Compactness)");
-        public static LocalisableString NeonGlowLineCheckbox => OsuCcLocalisation.Get(getKey(nameof(NeonGlowLineCheckbox)), "Neon Glow Underline");
-        public static LocalisableString NeonGlowOffsetSlider => OsuCcLocalisation.Get(getKey(nameof(NeonGlowOffsetSlider)), "Underline Vertical Offset");
-        public static LocalisableString NeonAccentColorDropdown => OsuCcLocalisation.Get(getKey(nameof(NeonAccentColorDropdown)), "Accent Glow Color");
 
-        public static LocalisableString AccentPink => OsuCcLocalisation.Get(getKey(nameof(AccentPink)), "osu! Pink");
-        public static LocalisableString AccentPurple => OsuCcLocalisation.Get(getKey(nameof(AccentPurple)), "Neon Purple");
-        public static LocalisableString AccentCyan => OsuCcLocalisation.Get(getKey(nameof(AccentCyan)), "Cyberpunk Cyan");
-        public static LocalisableString AccentLime => OsuCcLocalisation.Get(getKey(nameof(AccentLime)), "Emerald Lime");
-        public static LocalisableString AccentGold => OsuCcLocalisation.Get(getKey(nameof(AccentGold)), "Gold");
-        public static LocalisableString AccentWhite => OsuCcLocalisation.Get(getKey(nameof(AccentWhite)), "White");
+        public static LocalisableString TopScreenDarkGlowSlider => OsuCcLocalisation.Get(getKey(nameof(TopScreenDarkGlowSlider)), "Top Screen Dark Glow / Vignette");
+        public static LocalisableString AdaptScreensToIslandCheckbox => OsuCcLocalisation.Get(getKey(nameof(AdaptScreensToIslandCheckbox)), "Adapt Screens to Island (Soft Rounded Corners)");
+        public static LocalisableString SeamlessRulesetSelectorCheckbox => OsuCcLocalisation.Get(getKey(nameof(SeamlessRulesetSelectorCheckbox)), "Seamless Ruleset Selector (Remove Solid Background)");
 
         // Section 3: Spacers
         public static LocalisableString SpacerStyleDropdown => OsuCcLocalisation.Get(getKey(nameof(SpacerStyleDropdown)), "Spacer Style");

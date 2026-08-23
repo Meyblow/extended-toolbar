@@ -3,6 +3,11 @@
   "extended-toolbar:description": "Модульный и настраиваемый тулбар для osu!cc с поддержкой зон, кастомных стилей и пресетов.",
 
   "extended-toolbar:Header": "Extended Toolbar",
+  "extended-toolbar:SectionLayoutPresets": "Пресеты и макет",
+  "extended-toolbar:SectionFloatingIsland": "Плавающий остров и геометрия",
+  "extended-toolbar:SectionBackgroundEffects": "Фоновые эффекты и затемнение",
+  "extended-toolbar:SectionProfileSpacers": "Профиль игрока и разделители",
+
   "extended-toolbar:PresetDropdownLabel": "Пресет раскладки",
   "extended-toolbar:DefaultPresetName": "По умолчанию",
   "extended-toolbar:ImportedPresetName": "Импортированный пресет",
@@ -22,16 +27,10 @@
   "extended-toolbar:ToolbarOffsetXSlider": "Смещение тулбара по горизонтали",
   "extended-toolbar:ToolbarOffsetYSlider": "Смещение тулбара по вертикали",
   "extended-toolbar:ToolbarSpacingSlider": "Плотность элементов (компактность)",
-  "extended-toolbar:NeonGlowLineCheckbox": "Неоновая линия подсветки снизу (Glow)",
-  "extended-toolbar:NeonGlowOffsetSlider": "Смещение неоновой линии",
-  "extended-toolbar:NeonAccentColorDropdown": "Цвет неоновой подсветки",
 
-  "extended-toolbar:AccentPink": "osu! Розовый",
-  "extended-toolbar:AccentPurple": "Неоновый фиолетовый",
-  "extended-toolbar:AccentCyan": "Киберпанк бирюзовый",
-  "extended-toolbar:AccentLime": "Изумрудный лайм",
-  "extended-toolbar:AccentGold": "Золотой",
-  "extended-toolbar:AccentWhite": "Белый",
+  "extended-toolbar:TopScreenDarkGlowSlider": "Верхнее затемнение экрана (Glow / Виньетка)",
+  "extended-toolbar:AdaptScreensToIslandCheckbox": "Адаптация экранов под остров (Скругление панелей)",
+  "extended-toolbar:SeamlessRulesetSelectorCheckbox": "Бесшовный выбор режимов (убрать жесткий фон)",
 
   "extended-toolbar:SpacerStyleDropdown": "Стиль разделителей (спейсеров)",
   "extended-toolbar:SpacerBlank": "Пустой отступ (пробел)",

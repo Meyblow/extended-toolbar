@@ -15,13 +15,14 @@ namespace ExtendedToolbar
         public Bindable<float> ToolbarOffsetX { get; set; } = new(0.0f);
         public Bindable<float> ToolbarOffsetY { get; set; } = new(0.0f);
         public Bindable<float> ToolbarSpacing { get; set; } = new(4.0f);
-        public Bindable<bool> NeonGlowLine { get; set; } = new(false);
-        public Bindable<float> NeonGlowOffset { get; set; } = new(0.0f);
-        public Bindable<ToolbarAccentColor> ToolbarAccentColor { get; set; } = new(Models.ToolbarAccentColor.Pink);
 
         public Bindable<UserProfileDisplayMode> UserProfileDisplayMode { get; set; } = new(Models.UserProfileDisplayMode.Default);
         public Bindable<ProfileStatsPosition> ProfileStatsPosition { get; set; } = new(Models.ProfileStatsPosition.Right);
         public Bindable<SpacerStyle> SpacerStyle { get; set; } = new(Models.SpacerStyle.Blank);
         public Bindable<string> ActivePresetName { get; set; } = new("Default");
+
+        public Bindable<bool> AdaptScreensToIsland { get; set; } = new(true);
+        public Bindable<float> TopScreenDarkGlow { get; set; } = new(0.0f);
+        public Bindable<bool> SeamlessRulesetSelector { get; set; } = new(true);
     }
 }

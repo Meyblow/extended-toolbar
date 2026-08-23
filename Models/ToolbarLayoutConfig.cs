@@ -108,14 +108,14 @@ namespace ExtendedToolbar.Models
             code = code.Trim();
             // Accept both ET_LAYOUT_v1: and legacy OT_LAYOUT_v1:
             if (code.StartsWith("OT_LAYOUT_v1:", StringComparison.OrdinalIgnoreCase))
-                code = CodePrefix + code.Substring("OT_LAYOUT_v1:".Length);
+                code = string.Concat(CodePrefix, code.AsSpan("OT_LAYOUT_v1:".Length));
 
             if (!code.StartsWith(CodePrefix, StringComparison.OrdinalIgnoreCase))
                 return null;
 
             try
             {
-                string base64 = code.Substring(CodePrefix.Length).Trim();
+                string base64 = code[CodePrefix.Length..].Trim();
                 byte[] bytes = Convert.FromBase64String(base64);
                 string json = Encoding.UTF8.GetString(bytes);
                 return JsonSerializer.Deserialize<ToolbarLayoutConfig>(json);

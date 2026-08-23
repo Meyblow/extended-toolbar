@@ -21,6 +21,7 @@ namespace ExtendedToolbar
         private ToolbarStyleManager? styleManager;
         private ToolbarProfileLayoutManager? profileManager;
         private ToolbarVisibilityManager? visibilityManager;
+        private ToolbarScreenAdapter? screenAdapter;
 
         protected override void OnLoad()
         {
@@ -45,19 +46,21 @@ namespace ExtendedToolbar
             Settings.ToolbarOffsetX = Host.GetSettings().Bind("toolbar_offset_x", 0.0f);
             Settings.ToolbarOffsetY = Host.GetSettings().Bind("toolbar_offset_y", 0.0f);
             Settings.ToolbarSpacing = Host.GetSettings().Bind("toolbar_spacing", 4.0f);
-            Settings.NeonGlowLine = Host.GetSettings().Bind("neon_glow_line", false);
-            Settings.NeonGlowOffset = Host.GetSettings().Bind("neon_glow_offset", 0.0f);
-            Settings.ToolbarAccentColor = Host.GetSettings().Bind("toolbar_accent_color", Models.ToolbarAccentColor.Pink);
 
             Settings.UserProfileDisplayMode = Host.GetSettings().Bind("user_profile_display_mode", Models.UserProfileDisplayMode.Default);
             Settings.ProfileStatsPosition = Host.GetSettings().Bind("profile_stats_position", Models.ProfileStatsPosition.Right);
             Settings.SpacerStyle = Host.GetSettings().Bind("spacer_style", Models.SpacerStyle.Blank);
             Settings.ActivePresetName = Host.GetSettings().Bind("active_preset_name", "Default");
 
+            Settings.AdaptScreensToIsland = Host.GetSettings().Bind("adapt_screens_to_island", true);
+            Settings.TopScreenDarkGlow = Host.GetSettings().Bind("top_screen_dark_glow", 0.0f);
+            Settings.SeamlessRulesetSelector = Host.GetSettings().Bind("seamless_ruleset_selector", true);
+
             layoutManager = new ToolbarLayoutManager(Host, Settings);
             styleManager = new ToolbarStyleManager(Host, Settings);
             profileManager = new ToolbarProfileLayoutManager(Host, Settings);
             visibilityManager = new ToolbarVisibilityManager(Host, Settings);
+            screenAdapter = new ToolbarScreenAdapter(Host, Settings);
 
             Host.AddPatch(new ToolbarPatch(this, Host));
             Host.AddPatch(new ToolbarPopInPatch(this, Host, Settings.FloatingIslandMode, Settings.ToolbarOffsetY));
@@ -85,6 +88,8 @@ namespace ExtendedToolbar
 
             if (Host.Game is OsuGame game)
             {
+                screenAdapter?.Attach(game.ScreenStack);
+
                 Host.Scheduler?.Add(() =>
                 {
                     try
@@ -123,6 +128,8 @@ namespace ExtendedToolbar
             profileManager = null;
             visibilityManager?.Dispose();
             visibilityManager = null;
+            screenAdapter?.Dispose();
+            screenAdapter = null;
 
             base.Dispose();
             GC.SuppressFinalize(this);

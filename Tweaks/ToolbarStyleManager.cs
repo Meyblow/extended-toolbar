@@ -1,16 +1,20 @@
 using System;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Testing;
 using osu.Game.Graphics;
 using osu.Game.Overlays.Toolbar;
 using osucc.Plugin;
 using osuTK;
 using ExtendedToolbar.Models;
+using ExtendedToolbar.UI;
 
 namespace ExtendedToolbar.Tweaks
 {
@@ -22,9 +26,7 @@ namespace ExtendedToolbar.Tweaks
         private Toolbar? targetToolbar;
         private Drawable? zonesContainer;
         private Box? backgroundBox;
-
-        private Box? neonGlow;
-        private Box? neonCore;
+        private Box? topDarkGlowBox;
 
         public static float CalculateTargetY(bool floatingIsland, float offsetY)
         {
@@ -46,32 +48,30 @@ namespace ExtendedToolbar.Tweaks
 
             if (targetToolbar == null) return;
 
-            // Setup Neon Glow lines if not created
-            if (neonGlow == null)
+            // Setup Top Screen Dark Glow (Vignette) behind toolbar
+            if (topDarkGlowBox == null)
             {
-                neonGlow = new Box
+                topDarkGlowBox = new Box
                 {
                     RelativeSizeAxes = Axes.X,
-                    Height = 4,
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.TopCentre,
-                    Alpha = 0,
-                    Blending = BlendingParameters.Additive
+                    Height = 110f,
+                    Anchor = Anchor.TopLeft,
+                    Origin = Anchor.TopLeft,
+                    Alpha = 0f,
+                    AlwaysPresent = true,
+                    Depth = float.MaxValue - 100 // placed behind toolbar and UI
                 };
-                targetToolbar.Add(neonGlow);
-            }
 
-            if (neonCore == null)
-            {
-                neonCore = new Box
+                if (targetToolbar.Parent is Container<Drawable> parentContainer)
                 {
-                    RelativeSizeAxes = Axes.X,
-                    Height = 1.5f,
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.TopCentre,
-                    Alpha = 0
-                };
-                targetToolbar.Add(neonCore);
+                    if (topDarkGlowBox.Parent == null)
+                        parentContainer.Add(topDarkGlowBox);
+                }
+                else if (host.Game is Container<Drawable> gameContainer)
+                {
+                    if (topDarkGlowBox.Parent == null)
+                        gameContainer.Add(topDarkGlowBox);
+                }
             }
 
             // Bind value change handlers
@@ -82,9 +82,9 @@ namespace ExtendedToolbar.Tweaks
             settings.ToolbarWidth.BindValueChanged(_ => ApplyAll(), true);
             settings.ToolbarOffsetX.BindValueChanged(_ => ApplyAll(), true);
             settings.ToolbarOffsetY.BindValueChanged(_ => ApplyAll(), true);
-            settings.NeonGlowLine.BindValueChanged(_ => ApplyAll(), true);
-            settings.NeonGlowOffset.BindValueChanged(_ => ApplyAll(), true);
-            settings.ToolbarAccentColor.BindValueChanged(_ => ApplyAll(), true);
+            settings.ToolbarSpacing.BindValueChanged(_ => ApplyAll(), true);
+            settings.TopScreenDarkGlow.BindValueChanged(_ => ApplyAll(), true);
+            settings.SeamlessRulesetSelector.BindValueChanged(_ => ApplyAll(), true);
 
             targetToolbar.State.BindValueChanged(state =>
             {
@@ -108,9 +108,6 @@ namespace ExtendedToolbar.Tweaks
             float widthPercent = settings.ToolbarWidth.Value;
             float offsetX = settings.ToolbarOffsetX.Value;
             float offsetY = settings.ToolbarOffsetY.Value;
-            bool glow = settings.NeonGlowLine.Value;
-            float glowOffset = settings.NeonGlowOffset.Value;
-            var accent = settings.ToolbarAccentColor.Value;
 
             float targetY = CalculateTargetY(island, offsetY);
 
@@ -161,17 +158,67 @@ namespace ExtendedToolbar.Tweaks
                 backgroundBox.Alpha = opacity;
             }
 
-            if (neonGlow != null && neonCore != null)
+            // Top Screen Dark Glow
+            if (topDarkGlowBox != null)
             {
-                Colour4 accentColour = getAccentColour(accent);
+                float glowVal = Math.Clamp(settings.TopScreenDarkGlow.Value, 0f, 1f);
+                if (glowVal > 0f)
+                {
+                    topDarkGlowBox.Alpha = 1f;
+                    topDarkGlowBox.Colour = ColourInfo.GradientVertical(Colour4.Black.Opacity(glowVal), Colour4.Black.Opacity(0f));
+                }
+                else
+                {
+                    topDarkGlowBox.Alpha = 0f;
+                }
+            }
 
-                neonGlow.Alpha = glow ? 0.6f : 0f;
-                neonGlow.Colour = accentColour;
-                neonGlow.Y = glowOffset;
+            // Apply Seamless styling to ToolbarRulesetSelector
+            applyRulesetSelectorStyle();
+        }
 
-                neonCore.Alpha = glow ? 0.9f : 0f;
-                neonCore.Colour = accentColour.Lighten(0.4f);
-                neonCore.Y = glowOffset;
+        private void applyRulesetSelectorStyle()
+        {
+            if (IsDisposed) return;
+
+            try
+            {
+                var blockDrawables = zonesContainer?.ChildrenOfType<ToolbarBlockContainer>()
+                    .Where(b => b.ItemId == "rulesets" || (b.ContentDrawable != null && b.ContentDrawable.GetType().Name.Contains("Ruleset", StringComparison.OrdinalIgnoreCase)))
+                    .Select(b => b.ContentDrawable) ?? Enumerable.Empty<Drawable>();
+
+                var directDrawables = targetToolbar?.ChildrenOfType<Drawable>()
+                    .Where(d => d.GetType().Name.Contains("Ruleset", StringComparison.OrdinalIgnoreCase)) ?? Enumerable.Empty<Drawable>();
+
+                var rulesetDrawables = blockDrawables.Concat(directDrawables).Where(d => d != null).Distinct().ToList();
+
+                foreach (var content in rulesetDrawables)
+                {
+                    if (content == null) continue;
+
+                    if (content is Container cont)
+                    {
+                        cont.Masking = true;
+                        cont.CornerRadius = settings.FloatingIslandMode.Value ? 8f : 0f;
+                    }
+
+                    var bgBoxes = content.ChildrenOfType<Box>().Where(b => b.RelativeSizeAxes == Axes.Both || b.RelativeSizeAxes == Axes.X).ToList();
+                    foreach (var b in bgBoxes)
+                    {
+                        if (settings.SeamlessRulesetSelector.Value)
+                        {
+                            b.Alpha = 0f;
+                        }
+                        else
+                        {
+                            b.Alpha = settings.ToolbarBackgroundOpacity.Value;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ExtendedToolbarLog.Error("applyRulesetSelectorStyle error", ex);
             }
         }
 
@@ -202,18 +249,15 @@ namespace ExtendedToolbar.Tweaks
             }
         }
 
-        private static Colour4 getAccentColour(ToolbarAccentColor accent)
+        protected override void Dispose(bool isDisposing)
         {
-            return accent switch
+            if (topDarkGlowBox?.Parent is Container<Drawable> parentContainer)
             {
-                ToolbarAccentColor.Pink => Colour4.FromHex("#ff66aa"),
-                ToolbarAccentColor.Purple => Colour4.FromHex("#bb66ff"),
-                ToolbarAccentColor.Cyan => Colour4.FromHex("#00e5ff"),
-                ToolbarAccentColor.Lime => Colour4.FromHex("#55ff77"),
-                ToolbarAccentColor.Gold => Colour4.FromHex("#ffcc22"),
-                ToolbarAccentColor.White => Colour4.White,
-                _ => Colour4.FromHex("#ff66aa")
-            };
+                parentContainer.Remove(topDarkGlowBox, true);
+            }
+            topDarkGlowBox = null;
+
+            base.Dispose(isDisposing);
         }
     }
 }
