@@ -305,7 +305,38 @@ namespace ExtendedToolbar.UI
             });
 
             // =========================================================================
-            // 👤 СЕКЦИЯ 4: ПРОФИЛЬ И РАЗДЕЛИТЕЛИ (PROFILE & SPACERS)
+            // 🔔 СЕКЦИЯ 4: УВЕДОМЛЕНИЯ И ШТОРКА (NOTIFICATIONS & SIDEBAR)
+            // =========================================================================
+            Add(new SettingsSectionHeader(ExtendedToolbarStrings.SectionNotifications));
+
+            Add(new ToastPositionMonitorSelector(settings.ToastPosition));
+
+            Add(new SettingsEnumDropdown<NotificationSidebarPosition>
+            {
+                LabelText = ExtendedToolbarStrings.NotificationSidebarPositionDropdown,
+                Margin = new MarginPadding { Top = 4f },
+                Current = settings.NotificationSidebarPosition
+            });
+
+            var maxToastsBindable = new BindableInt(settings.MaxVisibleToasts.Value)
+            {
+                MinValue = 1,
+                MaxValue = 5,
+                Precision = 1
+            };
+            maxToastsBindable.BindValueChanged(e => settings.MaxVisibleToasts.Value = e.NewValue);
+            settings.MaxVisibleToasts.BindValueChanged(e => maxToastsBindable.Value = e.NewValue);
+
+            Add(new SettingsSlider<int>
+            {
+                LabelText = ExtendedToolbarStrings.MaxVisibleToastsSlider,
+                Margin = new MarginPadding { Top = 4f },
+                Current = maxToastsBindable,
+                KeyboardStep = 1
+            });
+
+            // =========================================================================
+            // 👤 СЕКЦИЯ 5: ПРОФИЛЬ И РАЗДЕЛИТЕЛИ (PROFILE & SPACERS)
             // =========================================================================
             Add(new SettingsSectionHeader(ExtendedToolbarStrings.SectionProfileSpacers));
 

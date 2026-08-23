@@ -2,6 +2,14 @@
 
 All notable changes to Extended Toolbar are documented in this file.
 
+## [1.0.2] - 2026-08-23
+
+### Added
+- **Interactive Toast Position Monitor Selector (`ToastPositionMonitorSelector`)**: A stylized mini-monitor widget in settings allowing users to visually click and select where floating toast notifications appear on screen (Top Left, Top Centre, Top Right, Bottom Left, Bottom Right) with animated mini-toast preview pills.
+- **Notification Overlay Sidebar Side Switching**: Added option to open the full notification panel from either the Right (default) or Left side of the screen, with automatic anchor, shadow orientation and smooth sliding animations.
+- **Max Visible Toasts Limit**: Configurable slider (1 to 5) to control how many toast popups can be visible on screen simultaneously.
+- **Dedicated Notifications & Sidebar Settings Section**: New settings category grouping all notification customization options.
+
 ## [1.0.1] - 2026-08-23
 
 ### Added

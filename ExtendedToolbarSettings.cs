@@ -24,5 +24,9 @@ namespace ExtendedToolbar
         public Bindable<bool> AdaptScreensToIsland { get; set; } = new(true);
         public Bindable<float> TopScreenDarkGlow { get; set; } = new(0.0f);
         public Bindable<bool> SeamlessRulesetSelector { get; set; } = new(true);
+
+        public Bindable<ToastPosition> ToastPosition { get; set; } = new(Models.ToastPosition.TopRight);
+        public Bindable<int> MaxVisibleToasts { get; set; } = new(3);
+        public Bindable<NotificationSidebarPosition> NotificationSidebarPosition { get; set; } = new(Models.NotificationSidebarPosition.Right);
     }
 }

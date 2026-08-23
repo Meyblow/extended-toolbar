@@ -33,6 +33,9 @@ Save multiple toolbar layouts as JSON presets and switch between them whenever y
 **Import & export**  
 Share your toolbar setup using compact share codes or import layouts created by someone else.
 
+**Notification & sidebar customization**  
+Choose where toast notifications appear on screen using an interactive mini-monitor widget, limit visible toasts, and open the notifications sidebar from either the left or right side of the screen.
+
 **Smart overlay positioning**  
 Login and music overlays stay aligned with their corresponding buttons even after moving them around.
 

@@ -22,6 +22,7 @@ namespace ExtendedToolbar
         private ToolbarProfileLayoutManager? profileManager;
         private ToolbarVisibilityManager? visibilityManager;
         private ToolbarScreenAdapter? screenAdapter;
+        private NotificationLayoutManager? notificationManager;
 
         protected override void OnLoad()
         {
@@ -56,14 +57,21 @@ namespace ExtendedToolbar
             Settings.TopScreenDarkGlow = Host.GetSettings().Bind("top_screen_dark_glow", 0.0f);
             Settings.SeamlessRulesetSelector = Host.GetSettings().Bind("seamless_ruleset_selector", true);
 
+            Settings.ToastPosition = Host.GetSettings().Bind("toast_position", Models.ToastPosition.TopRight);
+            Settings.MaxVisibleToasts = Host.GetSettings().Bind("max_visible_toasts", 3);
+            Settings.NotificationSidebarPosition = Host.GetSettings().Bind("notification_sidebar_position", Models.NotificationSidebarPosition.Right);
+
             layoutManager = new ToolbarLayoutManager(Host, Settings);
             styleManager = new ToolbarStyleManager(Host, Settings);
             profileManager = new ToolbarProfileLayoutManager(Host, Settings);
             visibilityManager = new ToolbarVisibilityManager(Host, Settings);
             screenAdapter = new ToolbarScreenAdapter(Host, Settings);
+            notificationManager = new NotificationLayoutManager(Host, Settings);
 
             Host.AddPatch(new ToolbarPatch(this, Host));
             Host.AddPatch(new ToolbarPopInPatch(this, Host, Settings.FloatingIslandMode, Settings.ToolbarOffsetY));
+            Host.AddPatch(new NotificationOverlayPopInPatch(this, Host, Settings));
+            Host.AddPatch(new NotificationOverlayPopOutPatch(this, Host, Settings));
 
             ExtendedToolbarLog.Info("Extended Toolbar: OnLoad() complete.");
         }
@@ -89,6 +97,7 @@ namespace ExtendedToolbar
             if (Host.Game is OsuGame game)
             {
                 screenAdapter?.Attach(game.ScreenStack);
+                notificationManager?.Attach(game);
 
                 Host.Scheduler?.Add(() =>
                 {
@@ -130,6 +139,8 @@ namespace ExtendedToolbar
             visibilityManager = null;
             screenAdapter?.Dispose();
             screenAdapter = null;
+            notificationManager?.Dispose();
+            notificationManager = null;
 
             base.Dispose();
             GC.SuppressFinalize(this);

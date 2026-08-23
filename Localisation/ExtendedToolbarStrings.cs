@@ -18,7 +18,20 @@ namespace ExtendedToolbar.Localisation
         public static LocalisableString SectionLayoutPresets => OsuCcLocalisation.Get(getKey(nameof(SectionLayoutPresets)), "Layout & Presets");
         public static LocalisableString SectionFloatingIsland => OsuCcLocalisation.Get(getKey(nameof(SectionFloatingIsland)), "Floating Island & Geometry");
         public static LocalisableString SectionBackgroundEffects => OsuCcLocalisation.Get(getKey(nameof(SectionBackgroundEffects)), "Background Effects & Glow");
+        public static LocalisableString SectionNotifications => OsuCcLocalisation.Get(getKey(nameof(SectionNotifications)), "Notifications & Sidebar");
         public static LocalisableString SectionProfileSpacers => OsuCcLocalisation.Get(getKey(nameof(SectionProfileSpacers)), "Profile & Spacers");
+
+        // Section: Notifications & Sidebar
+        public static LocalisableString ToastPositionLabel => OsuCcLocalisation.Get(getKey(nameof(ToastPositionLabel)), "Toast Notification Position");
+        public static LocalisableString ToastPosTopRight => OsuCcLocalisation.Get(getKey(nameof(ToastPosTopRight)), "Top Right (Default)");
+        public static LocalisableString ToastPosTopCentre => OsuCcLocalisation.Get(getKey(nameof(ToastPosTopCentre)), "Top Centre");
+        public static LocalisableString ToastPosTopLeft => OsuCcLocalisation.Get(getKey(nameof(ToastPosTopLeft)), "Top Left");
+        public static LocalisableString ToastPosBottomRight => OsuCcLocalisation.Get(getKey(nameof(ToastPosBottomRight)), "Bottom Right");
+        public static LocalisableString ToastPosBottomLeft => OsuCcLocalisation.Get(getKey(nameof(ToastPosBottomLeft)), "Bottom Left");
+        public static LocalisableString MaxVisibleToastsSlider => OsuCcLocalisation.Get(getKey(nameof(MaxVisibleToastsSlider)), "Max Visible Toasts");
+        public static LocalisableString NotificationSidebarPositionDropdown => OsuCcLocalisation.Get(getKey(nameof(NotificationSidebarPositionDropdown)), "Sidebar Slide-in Direction");
+        public static LocalisableString SidebarPosRight => OsuCcLocalisation.Get(getKey(nameof(SidebarPosRight)), "Right (Default)");
+        public static LocalisableString SidebarPosLeft => OsuCcLocalisation.Get(getKey(nameof(SidebarPosLeft)), "Left (Slide from left)");
 
         // Section 1: Toolbar & Presets
         public static LocalisableString PresetDropdownLabel => OsuCcLocalisation.Get(getKey(nameof(PresetDropdownLabel)), "Layout Preset");
