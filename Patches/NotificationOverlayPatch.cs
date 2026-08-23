@@ -8,7 +8,7 @@ using ExtendedToolbar.Models;
 namespace ExtendedToolbar.Patches
 {
     /// <summary>
-    /// Патч на NotificationOverlay.PopIn для анимации появления шторки слева.
+    /// Патч на NotificationOverlay.PopIn для надежной анимации открытия шторки со стороны Left или Right.
     /// </summary>
     public sealed class NotificationOverlayPopInPatch : PluginPatch<ExtendedToolbarPlugin>
     {
@@ -22,24 +22,39 @@ namespace ExtendedToolbar.Patches
 
         public static bool Prefix(OverlayContainer __instance)
         {
-            if (__instance == null || settings?.NotificationSidebarPosition.Value != NotificationSidebarPosition.Left)
+            if (__instance == null || settings == null)
                 return true;
 
-            __instance.Anchor = Anchor.TopLeft;
-            __instance.Origin = Anchor.TopLeft;
-
             float width = __instance.DrawWidth > 0 ? __instance.DrawWidth : 400f;
-            __instance.ClearTransforms();
-            __instance.TransformTo(nameof(__instance.X), -width);
-            __instance.TransformTo(nameof(__instance.X), 0f, 400, Easing.OutQuint);
-            __instance.FadeIn(200, Easing.OutQuint);
+            bool isLeft = settings.NotificationSidebarPosition.Value == NotificationSidebarPosition.Left;
 
-            return false;
+            if (isLeft)
+            {
+                __instance.Anchor = Anchor.TopLeft;
+                __instance.Origin = Anchor.TopLeft;
+                __instance.Y = 0f;
+                __instance.ClearTransforms();
+                __instance.TransformTo(nameof(Drawable.X), -width);
+                __instance.TransformTo(nameof(Drawable.X), 0f, 400, Easing.OutQuint);
+                __instance.FadeIn(200, Easing.OutQuint);
+                return false;
+            }
+            else
+            {
+                __instance.Anchor = Anchor.TopRight;
+                __instance.Origin = Anchor.TopRight;
+                __instance.Y = 0f;
+                __instance.ClearTransforms();
+                __instance.TransformTo(nameof(Drawable.X), width);
+                __instance.TransformTo(nameof(Drawable.X), 0f, 400, Easing.OutQuint);
+                __instance.FadeIn(200, Easing.OutQuint);
+                return false;
+            }
         }
     }
 
     /// <summary>
-    /// Патч на NotificationOverlay.PopOut для анимации скрытия шторки влево.
+    /// Патч на NotificationOverlay.PopOut для надежной анимации закрытия шторки в сторону Left или Right.
     /// </summary>
     public sealed class NotificationOverlayPopOutPatch : PluginPatch<ExtendedToolbarPlugin>
     {
@@ -53,19 +68,34 @@ namespace ExtendedToolbar.Patches
 
         public static bool Prefix(OverlayContainer __instance)
         {
-            if (__instance == null || settings?.NotificationSidebarPosition.Value != NotificationSidebarPosition.Left)
+            if (__instance == null || settings == null)
                 return true;
 
-            __instance.Anchor = Anchor.TopLeft;
-            __instance.Origin = Anchor.TopLeft;
-
             float width = __instance.DrawWidth > 0 ? __instance.DrawWidth : 400f;
-            __instance.ClearTransforms();
-            __instance.TransformTo(nameof(__instance.X), 0f);
-            __instance.TransformTo(nameof(__instance.X), -width, 400, Easing.OutQuint);
-            __instance.FadeOut(200, Easing.OutQuint);
+            bool isLeft = settings.NotificationSidebarPosition.Value == NotificationSidebarPosition.Left;
 
-            return false;
+            if (isLeft)
+            {
+                __instance.Anchor = Anchor.TopLeft;
+                __instance.Origin = Anchor.TopLeft;
+                __instance.Y = 0f;
+                __instance.ClearTransforms();
+                __instance.TransformTo(nameof(Drawable.X), 0f);
+                __instance.TransformTo(nameof(Drawable.X), -width, 400, Easing.OutQuint);
+                __instance.FadeOut(200, Easing.OutQuint);
+                return false;
+            }
+            else
+            {
+                __instance.Anchor = Anchor.TopRight;
+                __instance.Origin = Anchor.TopRight;
+                __instance.Y = 0f;
+                __instance.ClearTransforms();
+                __instance.TransformTo(nameof(Drawable.X), 0f);
+                __instance.TransformTo(nameof(Drawable.X), width, 400, Easing.OutQuint);
+                __instance.FadeOut(200, Easing.OutQuint);
+                return false;
+            }
         }
     }
 }

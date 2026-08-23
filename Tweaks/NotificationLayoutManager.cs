@@ -6,7 +6,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Testing;
 using osu.Game;
 using osu.Game.Overlays;
-using osuTK;
 using osucc.Plugin;
 using ExtendedToolbar.Models;
 using ExtendedToolbar.Utils;
@@ -34,8 +33,8 @@ namespace ExtendedToolbar.Tweaks
         [BackgroundDependencyLoader]
         private void load()
         {
-            settings.NotificationSidebarPosition.BindValueChanged(_ => applySidebarPosition(), true);
-            settings.ToastPosition.BindValueChanged(_ => applyToastPosition(), true);
+            settings.NotificationSidebarPosition.BindValueChanged(_ => updateLayout(), true);
+            settings.ToastPosition.BindValueChanged(_ => updateLayout(), true);
             settings.MaxVisibleToasts.BindValueChanged(_ => applyMaxVisibleToasts(), true);
         }
 
@@ -48,8 +47,7 @@ namespace ExtendedToolbar.Tweaks
                 try
                 {
                     findNotificationComponents(game);
-                    applySidebarPosition();
-                    applyToastPosition();
+                    updateLayout();
                 }
                 catch (Exception ex)
                 {
@@ -62,7 +60,6 @@ namespace ExtendedToolbar.Tweaks
         {
             if (IsDisposed) return;
 
-            // Ищем NotificationOverlay в дереве игры
             notificationOverlay = game.ChildrenOfType<OverlayContainer>()
                 .FirstOrDefault(c => c.GetType().Name.Contains("Notification", StringComparison.OrdinalIgnoreCase));
 
@@ -70,108 +67,86 @@ namespace ExtendedToolbar.Tweaks
             {
                 ExtendedToolbarLog.Info($"NotificationLayoutManager: Found NotificationOverlay ({notificationOverlay.GetType().Name})");
 
-                // Ищем контейнер всплывающих тостов (Toast / NotificationSection)
                 toastContainer = notificationOverlay.ChildrenOfType<Container>()
                     .FirstOrDefault(c => c.GetType().Name.Contains("Toast", StringComparison.OrdinalIgnoreCase)
                                       || c.GetType().Name.Contains("Floating", StringComparison.OrdinalIgnoreCase)
                                       || (c.GetType().Name.Contains("FillFlow", StringComparison.OrdinalIgnoreCase) && c.Anchor == Anchor.TopRight));
 
-                notificationOverlay.State.BindValueChanged(_ =>
+                notificationOverlay.State.BindValueChanged(e =>
                 {
-                    Scheduler.AddOnce(applySidebarPosition);
+                    Scheduler.AddOnce(updateLayout);
                 });
             }
         }
 
-        private void applySidebarPosition()
+        private void updateLayout()
         {
             if (notificationOverlay == null || IsDisposed) return;
 
             try
             {
-                bool isLeft = settings.NotificationSidebarPosition.Value == NotificationSidebarPosition.Left;
+                bool isOpen = notificationOverlay.State.Value == Visibility.Visible;
+                float width = notificationOverlay.DrawWidth > 0 ? notificationOverlay.DrawWidth : 400f;
 
-                if (isLeft)
+                if (isOpen)
                 {
-                    notificationOverlay.Anchor = Anchor.TopLeft;
-                    notificationOverlay.Origin = Anchor.TopLeft;
+                    // === Режим открытой шторки ===
+                    bool isLeft = settings.NotificationSidebarPosition.Value == NotificationSidebarPosition.Left;
 
-                    if (notificationOverlay.State.Value == Visibility.Hidden)
-                    {
-                        float width = notificationOverlay.DrawWidth > 0 ? notificationOverlay.DrawWidth : 400f;
-                        notificationOverlay.X = -width;
-                    }
-                    else
-                    {
-                        notificationOverlay.X = 0f;
-                    }
+                    notificationOverlay.Anchor = isLeft ? Anchor.TopLeft : Anchor.TopRight;
+                    notificationOverlay.Origin = isLeft ? Anchor.TopLeft : Anchor.TopRight;
+                    notificationOverlay.X = 0f;
+                    notificationOverlay.Y = 0f;
                 }
                 else
                 {
-                    notificationOverlay.Anchor = Anchor.TopRight;
-                    notificationOverlay.Origin = Anchor.TopRight;
+                    // === Режим скрытой шторки (позиция всплывающих тостов) ===
+                    var toastPos = settings.ToastPosition.Value;
 
-                    if (notificationOverlay.State.Value == Visibility.Hidden)
+                    switch (toastPos)
                     {
-                        float width = notificationOverlay.DrawWidth > 0 ? notificationOverlay.DrawWidth : 400f;
-                        notificationOverlay.X = width;
-                    }
-                    else
-                    {
-                        notificationOverlay.X = 0f;
+                        case ToastPosition.TopLeft:
+                            notificationOverlay.Anchor = Anchor.TopLeft;
+                            notificationOverlay.Origin = Anchor.TopLeft;
+                            notificationOverlay.X = -width;
+                            notificationOverlay.Y = 0f;
+                            break;
+
+                        case ToastPosition.TopCentre:
+                            notificationOverlay.Anchor = Anchor.TopCentre;
+                            notificationOverlay.Origin = Anchor.TopCentre;
+                            notificationOverlay.X = 0f;
+                            notificationOverlay.Y = 0f;
+                            break;
+
+                        case ToastPosition.TopRight:
+                            notificationOverlay.Anchor = Anchor.TopRight;
+                            notificationOverlay.Origin = Anchor.TopRight;
+                            notificationOverlay.X = width;
+                            notificationOverlay.Y = 0f;
+                            break;
+
+                        case ToastPosition.BottomLeft:
+                            notificationOverlay.Anchor = Anchor.BottomLeft;
+                            notificationOverlay.Origin = Anchor.BottomLeft;
+                            notificationOverlay.X = -width;
+                            notificationOverlay.Y = 0f;
+                            break;
+
+                        case ToastPosition.BottomRight:
+                            notificationOverlay.Anchor = Anchor.BottomRight;
+                            notificationOverlay.Origin = Anchor.BottomRight;
+                            notificationOverlay.X = width;
+                            notificationOverlay.Y = 0f;
+                            break;
                     }
                 }
+
+                applyMaxVisibleToasts();
             }
             catch (Exception ex)
             {
-                ExtendedToolbarLog.Error("applySidebarPosition error", ex);
-            }
-        }
-
-        private void applyToastPosition()
-        {
-            if (toastContainer == null || IsDisposed) return;
-
-            try
-            {
-                var pos = settings.ToastPosition.Value;
-
-                switch (pos)
-                {
-                    case ToastPosition.TopLeft:
-                        toastContainer.Anchor = Anchor.TopLeft;
-                        toastContainer.Origin = Anchor.TopLeft;
-                        toastContainer.Margin = new MarginPadding { Top = 50, Left = 15 };
-                        break;
-
-                    case ToastPosition.TopCentre:
-                        toastContainer.Anchor = Anchor.TopCentre;
-                        toastContainer.Origin = Anchor.TopCentre;
-                        toastContainer.Margin = new MarginPadding { Top = 50 };
-                        break;
-
-                    case ToastPosition.TopRight:
-                        toastContainer.Anchor = Anchor.TopRight;
-                        toastContainer.Origin = Anchor.TopRight;
-                        toastContainer.Margin = new MarginPadding { Top = 50, Right = 15 };
-                        break;
-
-                    case ToastPosition.BottomLeft:
-                        toastContainer.Anchor = Anchor.BottomLeft;
-                        toastContainer.Origin = Anchor.BottomLeft;
-                        toastContainer.Margin = new MarginPadding { Bottom = 60, Left = 15 };
-                        break;
-
-                    case ToastPosition.BottomRight:
-                        toastContainer.Anchor = Anchor.BottomRight;
-                        toastContainer.Origin = Anchor.BottomRight;
-                        toastContainer.Margin = new MarginPadding { Bottom = 60, Right = 15 };
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                ExtendedToolbarLog.Error("applyToastPosition error", ex);
+                ExtendedToolbarLog.Error("updateLayout error", ex);
             }
         }
 
@@ -186,7 +161,6 @@ namespace ExtendedToolbar.Tweaks
 
                 if (toasts.Count > max)
                 {
-                    // Плавно скрываем самые старые тосты, превышающие лимит
                     int toHide = toasts.Count - max;
                     for (int i = 0; i < toHide; i++)
                     {
@@ -205,7 +179,6 @@ namespace ExtendedToolbar.Tweaks
             base.Update();
             if (IsDisposed) return;
 
-            // Периодически поддерживаем лимит тостов при поступлении новых уведомлений
             if (toastContainer != null && toastContainer.Children.Count > settings.MaxVisibleToasts.Value)
             {
                 applyMaxVisibleToasts();
