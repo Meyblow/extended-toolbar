@@ -1,39 +1,65 @@
 # Extended Toolbar
 
-[English](README.md) | [Русский](README.ru.md)
+A customizable toolbar plugin for osu!cc and osu!lazer.
 
-A modular, highly customizable toolbar plugin for osu!cc and osu!lazer.
+Made this because the default toolbar is functional, but having the ability to actually arrange it the way you want is nicer.
 
-## ✨ Features
+### Features
 
-- **Modular Zones & Layout**: Freely arrange toolbar items into Left, Center, and Right zones.
-- **Interactive Edit Mode**: Drag & Drop toolbar blocks with live preview.
-- **Floating Island Dock**: Turn the standard full-width top bar into a stylish floating island with adjustable corner radius, width (length), horizontal offset, and vertical offset.
-- **Visual Styles & Aesthetics**:
-  - Configurable toolbar height and background opacity.
-  - Item compactness / spacing slider.
-  - Neon glow underline with customizable accent colors (Pink, Purple, Cyan, Lime, Gold, White).
-  - Custom spacers (Blank gap, Thin line, Dot).
-- **User Profile Customization**:
-  - Reorder avatar and username (Avatar on left, Username only, Avatar only, etc.).
-  - Slide rank and PP stats from the left or right.
-- **Layout Presets & Sharing**:
-  - Save multiple named layout presets as JSON.
-  - Export and import layouts via compact share codes.
-- **Smart Overlay Anchor**: Kept Login and Music overlays aligned right under their relocated buttons.
+**Custom layout**
+Move toolbar items between the left, center and right zones. Rearrange everything to fit your preferred layout.
 
-## 📦 Installation
+**Edit mode**
+Enable edit mode and drag toolbar blocks around with a live preview.
 
-1. Download the latest `ExtendedToolbar.dll` from Releases.
-2. Place it into `%APPDATA%\osu\osu-cc\plugins\extended-toolbar\`.
-3. Launch osu!cc and customize your toolbar in Settings or by right-clicking the toolbar.
+**Floating island mode**
+Turn the standard full-width toolbar into a floating island. Adjust its width, corner radius, horizontal position and vertical offset.
 
-## 🛠️ Building
+**Visual customization**
+Change the toolbar height, background opacity and item spacing.
 
-```bash
+**Custom spacers**
+Add empty gaps, thin lines or dots between toolbar items.
+
+**Profile customization**
+Change how your avatar, username, rank and PP are positioned inside the toolbar.
+
+**Layout presets**
+Save multiple toolbar layouts as JSON presets and switch between them whenever you want.
+
+**Import & export**
+Share your toolbar setup using compact share codes or import layouts created by someone else.
+
+**Smart overlay positioning**
+Login and music overlays stay aligned with their corresponding buttons even after moving them around.
+
+### Install
+
+1. Go to the Releases tab
+
+2. Download the latest `ExtendedToolbar.dll`
+
+3. Drop it into:
+
+   `%APPDATA%\osu\osu-cc\plugins\extended-toolbar\`
+
+4. Launch osu!cc
+
+5. Open Settings or right-click the toolbar to start customizing
+
+### Building
+
+```bash id="fouq56"
 dotnet build -c Release
 ```
 
-## 📜 License
+### Notes
 
-MIT License. See [LICENSE](LICENSE) for details.
+* Requires osu!cc with plugin support.
+* Layout presets are stored locally as JSON.
+* Toolbar customization is done entirely in-game.
+* You can switch between saved layouts without manually editing configuration files.
+
+---
+
+Meyblow — Telegram · osu! profile
