@@ -24,6 +24,7 @@ namespace ExtendedToolbar.Tweaks
         private readonly IOsuCcPluginHost host;
         private readonly ExtendedToolbarSettings settings;
 
+        private OsuGame? gameInstance;
         private NotificationOverlay? notificationOverlay;
         private Container? mainContent;
         private CompositeDrawable? toastTray;
@@ -47,11 +48,13 @@ namespace ExtendedToolbar.Tweaks
         {
             if (IsDisposed) return;
 
+            gameInstance = game;
+
             host.Scheduler?.Add(() =>
             {
                 try
                 {
-                    findNotificationComponents(game);
+                    findNotificationComponents();
                     updateLayout();
                 }
                 catch (Exception ex)
@@ -61,29 +64,54 @@ namespace ExtendedToolbar.Tweaks
             });
         }
 
-        private void findNotificationComponents(OsuGame game)
+        private void findNotificationComponents()
         {
-            if (IsDisposed) return;
+            if (IsDisposed || gameInstance == null) return;
 
-            notificationOverlay = game.ChildrenOfType<NotificationOverlay>().FirstOrDefault();
+            if (notificationOverlay == null)
+            {
+                notificationOverlay = gameInstance.ChildrenOfType<NotificationOverlay>().FirstOrDefault();
+                if (notificationOverlay != null)
+                {
+                    ExtendedToolbarLog.Info($"NotificationLayoutManager: Found NotificationOverlay ({notificationOverlay.GetHashCode()})");
+                    notificationOverlay.State.BindValueChanged(_ =>
+                    {
+                        Scheduler.AddOnce(updateLayout);
+                    });
+                }
+            }
 
             if (notificationOverlay != null)
             {
-                ExtendedToolbarLog.Info($"NotificationLayoutManager: Found NotificationOverlay ({notificationOverlay.GetHashCode()})");
-
-                mainContent = mainContentField?.GetValue(notificationOverlay) as Container;
-                toastTray = toastTrayField?.GetValue(notificationOverlay) as CompositeDrawable;
-
-                notificationOverlay.State.BindValueChanged(_ =>
+                if (mainContent == null)
                 {
-                    Scheduler.AddOnce(updateLayout);
-                });
+                    mainContent = mainContentField?.GetValue(notificationOverlay) as Container
+                                  ?? notificationOverlay.ChildrenOfType<Container>().FirstOrDefault(c => c.Name == "mainContent");
+                }
+
+                if (toastTray == null)
+                {
+                    toastTray = toastTrayField?.GetValue(notificationOverlay) as CompositeDrawable
+                                ?? notificationOverlay.ChildrenOfType<CompositeDrawable>().FirstOrDefault(c => c.GetType().Name.Contains("ToastTray", StringComparison.OrdinalIgnoreCase));
+                    
+                    if (toastTray != null)
+                    {
+                        ExtendedToolbarLog.Info($"NotificationLayoutManager: Found toastTray ({toastTray.GetHashCode()})");
+                    }
+                }
             }
         }
 
         private void updateLayout()
         {
-            if (notificationOverlay == null || IsDisposed) return;
+            if (IsDisposed) return;
+
+            if (notificationOverlay == null || mainContent == null || toastTray == null)
+            {
+                findNotificationComponents();
+            }
+
+            if (notificationOverlay == null) return;
 
             try
             {
@@ -188,6 +216,15 @@ namespace ExtendedToolbar.Tweaks
             base.Update();
             if (IsDisposed) return;
 
+            if (toastTray == null || mainContent == null)
+            {
+                findNotificationComponents();
+                if (toastTray != null || mainContent != null)
+                {
+                    updateLayout();
+                }
+            }
+
             if (toastTray != null)
             {
                 var flow = toastTray.ChildrenOfType<Container>()
@@ -202,6 +239,7 @@ namespace ExtendedToolbar.Tweaks
 
         protected override void Dispose(bool isDisposing)
         {
+            gameInstance = null;
             notificationOverlay = null;
             mainContent = null;
             toastTray = null;

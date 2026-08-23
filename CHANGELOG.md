@@ -2,6 +2,12 @@
 
 All notable changes to Extended Toolbar are documented in this file.
 
+## [1.0.4] - 2026-08-23
+
+### Fixed
+- **Avatar & Username Layout Reordering**: Fixed physical child reordering in `ToolbarProfileLayoutManager` so selecting `Avatar on left (Avatar | Username)` immediately moves the avatar to the left of the username on the toolbar.
+- **Dynamic ToastTray Resolution**: Implemented lazy component resolution for `toastTray` and `mainContent` in `NotificationLayoutManager`, ensuring toast notifications reliably appear in the chosen screen corner (Top Left, Top Centre, Top Right, Bottom Left, Bottom Right) even when notification components load asynchronously.
+
 ## [1.0.3] - 2026-08-23
 
 ### Fixed

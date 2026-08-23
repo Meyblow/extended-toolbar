@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -54,46 +55,56 @@ namespace ExtendedToolbar.Tweaks
 
             try
             {
-                var flow = userButton.ChildrenOfType<FillFlowContainer>().FirstOrDefault();
+                var flow = userButton.ChildrenOfType<FillFlowContainer>().FirstOrDefault()
+                           ?? userButton.GetType().GetField("Flow", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(userButton) as FillFlowContainer;
+
                 if (flow == null) return;
 
-                var avatar = flow.Children.FirstOrDefault(c => c is UpdateableAvatar || c.GetType().Name.Contains("Avatar", StringComparison.OrdinalIgnoreCase));
-                var username = flow.Children.FirstOrDefault(c => c is OsuSpriteText || c.GetType().Name.Contains("Username", StringComparison.OrdinalIgnoreCase));
+                var avatar = flow.Children.FirstOrDefault(c => c is UpdateableAvatar || c.GetType().Name.Contains("Avatar", StringComparison.OrdinalIgnoreCase))
+                             ?? userButton.GetType().GetField("avatar", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(userButton) as Drawable;
+
+                var username = flow.Children.FirstOrDefault(c => c is OsuSpriteText || c is SpriteText || c.GetType().Name.Contains("Username", StringComparison.OrdinalIgnoreCase) || c.GetType().Name.Contains("Text", StringComparison.OrdinalIgnoreCase))
+                               ?? userButton.GetType().GetField("usernameText", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(userButton) as Drawable;
 
                 if (avatar == null || username == null) return;
+
+                var otherChildren = flow.Children.Where(c => c != avatar && c != username).ToList();
+                flow.Clear(disposeChildren: false);
 
                 switch (mode)
                 {
                     case UserProfileDisplayMode.Default:
+                    case UserProfileDisplayMode.WithSeparator:
                         avatar.Alpha = 1;
                         username.Alpha = 1;
-                        flow.SetLayoutPosition(username, 0);
-                        flow.SetLayoutPosition(avatar, 1);
+                        flow.Add(username);
+                        flow.Add(avatar);
+                        foreach (var other in otherChildren) flow.Add(other);
                         break;
 
                     case UserProfileDisplayMode.AvatarLeft:
                     case UserProfileDisplayMode.AvatarLeftWithSep:
                         avatar.Alpha = 1;
                         username.Alpha = 1;
-                        flow.SetLayoutPosition(avatar, 0);
-                        flow.SetLayoutPosition(username, 1);
+                        flow.Add(avatar);
+                        flow.Add(username);
+                        foreach (var other in otherChildren) flow.Add(other);
                         break;
 
                     case UserProfileDisplayMode.AvatarOnly:
                         avatar.Alpha = 1;
                         username.Alpha = 0;
+                        flow.Add(avatar);
+                        flow.Add(username);
+                        foreach (var other in otherChildren) flow.Add(other);
                         break;
 
                     case UserProfileDisplayMode.UsernameOnly:
                         avatar.Alpha = 0;
                         username.Alpha = 1;
-                        break;
-
-                    case UserProfileDisplayMode.WithSeparator:
-                        avatar.Alpha = 1;
-                        username.Alpha = 1;
-                        flow.SetLayoutPosition(username, 0);
-                        flow.SetLayoutPosition(avatar, 1);
+                        flow.Add(username);
+                        flow.Add(avatar);
+                        foreach (var other in otherChildren) flow.Add(other);
                         break;
                 }
             }
