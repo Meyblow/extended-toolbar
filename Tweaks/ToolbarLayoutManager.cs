@@ -154,7 +154,14 @@ namespace ExtendedToolbar.Tweaks
                 var leftChildren = originalLeftFlow.Children.ToList();
                 foreach (var child in leftChildren)
                 {
-                    string id = identifyDrawable(child);
+                    string baseId = identifyDrawable(child);
+                    string id = baseId;
+                    int counter = 1;
+                    while (allBlocks.ContainsKey(id))
+                    {
+                        id = $"{baseId}_{counter++}";
+                    }
+
                     originalLeftItems.Add(id);
                     ToolbarBlockContainer.DetachFromParent(child);
 
@@ -185,7 +192,14 @@ namespace ExtendedToolbar.Tweaks
                 var rightChildren = originalRightFlow.Children.ToList();
                 foreach (var child in rightChildren)
                 {
-                    string id = identifyDrawable(child);
+                    string baseId = identifyDrawable(child);
+                    string id = baseId;
+                    int counter = 1;
+                    while (allBlocks.ContainsKey(id))
+                    {
+                        id = $"{baseId}_{counter++}";
+                    }
+
                     originalRightItems.Add(id);
                     ToolbarBlockContainer.DetachFromParent(child);
 
@@ -869,7 +883,7 @@ namespace ExtendedToolbar.Tweaks
             if (typeName.Contains("Chat")) return "chat";
             if (typeName.Contains("Social")) return "social";
             if (typeName.Contains("Music")) return "music";
-            if (typeName.Contains("User")) return "user_profile";
+            if (typeName == "ToolbarUserButton" || typeName.StartsWith("ToolbarUser")) return "user_profile";
             if (d is ToolbarSpacer) return "spacer_" + Guid.NewGuid().ToString("N")[..6];
 
             return typeName.ToLowerInvariant();

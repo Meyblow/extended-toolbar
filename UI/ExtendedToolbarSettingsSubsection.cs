@@ -305,18 +305,9 @@ namespace ExtendedToolbar.UI
             });
 
             // =========================================================================
-            // 🔔 СЕКЦИЯ 4: УВЕДОМЛЕНИЯ И ШТОРКА (NOTIFICATIONS & SIDEBAR)
+            // 🔔 СЕКЦИЯ 4: УВЕДОМЛЕНИЯ (NOTIFICATIONS)
             // =========================================================================
             Add(new SettingsSectionHeader(ExtendedToolbarStrings.SectionNotifications));
-
-            Add(new ToastPositionMonitorSelector(settings.ToastPosition));
-
-            Add(new SettingsEnumDropdown<NotificationSidebarPosition>
-            {
-                LabelText = ExtendedToolbarStrings.NotificationSidebarPositionDropdown,
-                Margin = new MarginPadding { Top = 4f },
-                Current = settings.NotificationSidebarPosition
-            });
 
             var maxToastsBindable = new BindableInt(settings.MaxVisibleToasts.Value)
             {

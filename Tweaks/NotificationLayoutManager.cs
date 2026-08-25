@@ -81,20 +81,6 @@ namespace ExtendedToolbar.Tweaks
 
             if (notificationOverlay != null)
             {
-                // Делаем сам оверлей полноэкранным, чтобы тосты могли свободно размещаться по всем углам экрана,
-                // а шторка могла открываться как слева, так и справа.
-                notificationOverlay.RelativeSizeAxes = Axes.Both;
-                notificationOverlay.Size = Vector2.One;
-                notificationOverlay.Anchor = Anchor.TopLeft;
-                notificationOverlay.Origin = Anchor.TopLeft;
-                notificationOverlay.Position = Vector2.Zero;
-
-                if (mainContent == null)
-                {
-                    mainContent = mainContentField?.GetValue(notificationOverlay) as Container
-                                  ?? notificationOverlay.ChildrenOfType<Container>().FirstOrDefault(c => c.Name == "mainContent");
-                }
-
                 if (toastTray == null)
                 {
                     toastTray = toastTrayField?.GetValue(notificationOverlay) as CompositeDrawable
@@ -112,7 +98,7 @@ namespace ExtendedToolbar.Tweaks
         {
             if (IsDisposed) return;
 
-            if (notificationOverlay == null || mainContent == null || toastTray == null)
+            if (notificationOverlay == null || toastTray == null)
             {
                 findNotificationComponents();
             }
@@ -121,74 +107,6 @@ namespace ExtendedToolbar.Tweaks
 
             try
             {
-                // Делаем сам оверлей полноэкранным
-                notificationOverlay.RelativeSizeAxes = Axes.Both;
-                notificationOverlay.Size = Vector2.One;
-                notificationOverlay.Anchor = Anchor.TopLeft;
-                notificationOverlay.Origin = Anchor.TopLeft;
-                notificationOverlay.Position = Vector2.Zero;
-
-                // 1. Позиционирование шторки (mainContent)
-                if (mainContent != null)
-                {
-                    bool isLeft = settings.NotificationSidebarPosition.Value == NotificationSidebarPosition.Left;
-                    float width = mainContent.DrawWidth > 0 ? mainContent.DrawWidth : 400f;
-
-                    mainContent.RelativeSizeAxes = Axes.Y;
-                    mainContent.Width = width;
-                    mainContent.Anchor = isLeft ? Anchor.TopLeft : Anchor.TopRight;
-                    mainContent.Origin = isLeft ? Anchor.TopLeft : Anchor.TopRight;
-
-                    if (notificationOverlay.State.Value == Visibility.Hidden)
-                    {
-                        mainContent.X = isLeft ? -width : width;
-                    }
-                    else
-                    {
-                        mainContent.X = 0f;
-                    }
-                }
-
-                // 2. Позиционирование всплывающих тостов (toastTray + toastFlow)
-                if (toastTray != null)
-                {
-                    toastTray.RelativeSizeAxes = Axes.None;
-                    toastTray.Width = 400f;
-
-                    var toastPos = settings.ToastPosition.Value;
-
-                    Anchor anchor = toastPos switch
-                    {
-                        ToastPosition.TopLeft => Anchor.TopLeft,
-                        ToastPosition.TopCentre => Anchor.TopCentre,
-                        ToastPosition.TopRight => Anchor.TopRight,
-                        ToastPosition.BottomLeft => Anchor.BottomLeft,
-                        ToastPosition.BottomRight => Anchor.BottomRight,
-                        _ => Anchor.TopRight
-                    };
-
-                    MarginPadding margin = toastPos switch
-                    {
-                        ToastPosition.TopLeft => new MarginPadding { Top = 50, Left = 15 },
-                        ToastPosition.TopCentre => new MarginPadding { Top = 50 },
-                        ToastPosition.TopRight => new MarginPadding { Top = 50, Right = 15 },
-                        ToastPosition.BottomLeft => new MarginPadding { Bottom = 60, Left = 15 },
-                        ToastPosition.BottomRight => new MarginPadding { Bottom = 60, Right = 15 },
-                        _ => new MarginPadding { Top = 50, Right = 15 }
-                    };
-
-                    toastTray.Anchor = anchor;
-                    toastTray.Origin = anchor;
-                    toastTray.Position = Vector2.Zero;
-                    toastTray.Margin = margin;
-
-                    if (toastFlowField?.GetValue(toastTray) is Drawable toastFlow)
-                    {
-                        toastFlow.Anchor = anchor;
-                        toastFlow.Origin = anchor;
-                    }
-                }
-
                 applyMaxVisibleToasts();
             }
             catch (Exception ex)

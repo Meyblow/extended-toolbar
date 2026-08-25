@@ -9,7 +9,7 @@
     <PackageId>extended-toolbar</PackageId>
     <Title>Extended Toolbar</Title>
     <Description>Complete modular and customizable toolbar for osu!cc with custom layout, styles, positioning, and zones.</Description>
-    <Version>1.0.7</Version>
+    <Version>1.0.8</Version>
     <Priority>50</Priority>
     <IconGlyph>Columns</IconGlyph>
     <IsPlugin>true</IsPlugin>

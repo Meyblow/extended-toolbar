@@ -70,8 +70,6 @@ namespace ExtendedToolbar
 
             Host.AddPatch(new ToolbarPatch(this, Host));
             Host.AddPatch(new ToolbarPopInPatch(this, Host, Settings.FloatingIslandMode, Settings.ToolbarOffsetY));
-            Host.AddPatch(new NotificationOverlayPopInPatch(this, Host, Settings));
-            Host.AddPatch(new NotificationOverlayPopOutPatch(this, Host, Settings));
 
             ExtendedToolbarLog.Info("Extended Toolbar: OnLoad() complete.");
         }

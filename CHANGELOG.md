@@ -2,6 +2,12 @@
 
 All notable changes to Extended Toolbar are documented in this file.
 
+## [1.0.8] - 2026-08-25
+
+### Fixed
+- **Edit Mode Block Overlap & Collision Fix**: Fixed an issue where third-party plugin buttons (like Username Visuals or widget badges) with "User" in class names caused duplicate `user_profile` block collisions and overlapping pink edit frames. Strictly isolated `ToolbarUserButton` and added automatic ID deduplication.
+- **Vanilla Notification Overlay Stability**: Reverted fullscreen `NotificationOverlay` overrides, ensuring native notification sidebar and toast tray behavior without layout distortion.
+
 ## [1.0.7] - 2026-08-23
 
 ### Fixed
